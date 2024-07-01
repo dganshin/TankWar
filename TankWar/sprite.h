@@ -4,11 +4,20 @@
 #include "Entity.h"
 #include <QWidget>
 
+#include <QVector2D>
+
+
 class Sprite : public Entity
 {
 public:
     Sprite();
-    Sprite(int x, int y, cosnt Qstring&filename );
+    Sprite(int x, int y, const QString& filename);
+    void update()override;
+    void draw(QPainter* painter)override;
+
+public:
+    QVector2D position; // 坐标
+    QPixmap pixmap; // 精灵图片
 };
 
 #endif // SPRITE_H
