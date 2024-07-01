@@ -11,10 +11,13 @@ CONFIG += c++17
 SOURCES += \
     Game.cpp \
     main.cpp \
+    sprite.cpp \
     widget.cpp
 
 HEADERS += \
+    Entity.h \
     Game.h \
+    sprite.h \
     widget.h
 
 FORMS += \
