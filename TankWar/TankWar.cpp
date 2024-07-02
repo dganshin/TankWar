@@ -4,26 +4,37 @@
 #include <stdio.h>
 #include <time.h>
 
-
-
 #define WIDTH 800  // 窗口宽度, 像素
 #define HEIGHT 600 // 窗口高度, 像素
-#define X_NUM 16 // 宽度方格
-#define Y_NUM 12 // 高度方格
+#define X_NUM 16   // 宽度方格
+#define Y_NUM 12   // 高度方格
+
+// 全局变量 一个方格的像素差距
+#define D 50
 
 // 坦克结构体
 struct Tank_s {
-    int id;        // 10: 玩家, 100: 普通敌人, 200: BOSS
-    int x, y;      // 在地图上的坐标
-    int health;    // 血量
-    int atk;       // 炮弹攻击力
-    int speed;     // 移动速度
-    int direction; // 坦克当前朝向
+    // 10: 玩家, 100: 普通敌人, 200: BOSS
+    int id;
+    // 在地图上的像素坐标 x:0-800, y:0-600
+    int x, y;
+    // 相对坐标
+    int X, Y;
+    // 血量
+    int health;
+    // 炮弹攻击力
+    int atk;
+    // 移动速度
+    int speed;
+    // 坦克当前朝向
+    int direction;
+    // 坦克是否存活
     bool is_alive = true;
 };
 
 // 炮弹结构体
 struct Bullet_s {
+    int x, y;  // 炮弹坐标
     int akt;   // 炮弹伤害
     int speed; // 炮弹速度
 };
@@ -32,29 +43,55 @@ struct Bullet_s {
  * 地图数据
  ******************************************/
 
-
-// 800 / 50 = 16, 600 / 50 = 12
+// 800 / D = 16, 600 / D = 12
 // 0表示空地, 1表示砖墙(wall_1, 可以摧毁), 2表示铁墙(wall_2, 不可以摧毁)
 // 10表示玩家, 100表示普通敌人, 200表示BOSS, 一个坦克占1个格子
 // 每一个砖块占一格
 // 第一关, 普通
+
+// int Map1[X_NUM][Y_NUM] = {
+//     {1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1},
+//     {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+//     {2, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1},
+//     {2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+//     {1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 1},
+//     {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+//     {1, 2, 2, 1, 2, 2, 2, 1, 2, 1, 1, 1},
+//     {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10},
+//     {2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1},
+//     {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+//     {1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1},
+//     {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
+//     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1},
+//     {100, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+//     {2, 2, 2, 2, 2, 1, 1, 1, 2, 1, 2, 1},
+//     {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
+
 int Map1[X_NUM][Y_NUM] = {
-    {1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1},
-    {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {2, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1},
-    {2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-    {1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 1},
-    {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 2, 2, 1, 2, 2, 2, 1, 2, 1, 1, 1},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10},
-    {2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-    {1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1},
-    {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1},
-    {100, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-    {2, 2, 2, 2, 2, 1, 1, 1, 2, 1, 2, 1},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 10},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
+
+
+void update_xy(Tank_s tank) {
+    tank.X = tank.x / D;
+    tank.Y = tank.y / D;
+}
+
 
 // 第二关, BOSS
 int Map2[X_NUM][Y_NUM] = {
@@ -96,17 +133,17 @@ void show_help() {
 void init_map() {
     IMAGE Wall_1, Wall_2;
     // 载入墙体图片
-    loadimage(&Wall_1, _T("wall_1.png"), 50, 50);
-    loadimage(&Wall_2, _T("wall_2.png"), 50, 50);
-    
+    loadimage(&Wall_1, _T("wall_1.png"), D, D);
+    loadimage(&Wall_2, _T("wall_2.png"), D, D);
+
     // 遍历地图数组, 绘制地图
     for (int i = 0; i < X_NUM; i++) {
         for (int j = 0; j < Y_NUM; j++) {
             if (Map1[i][j] == 1) {
-                putimage(i * 50, j * 50, &Wall_1);
+                putimage(i * D, j * D, &Wall_1);
             } else if (Map1[i][j] == 2) {
-                putimage(i * 50, j * 50, &Wall_2);
-            } 
+                putimage(i * D, j * D, &Wall_2);
+            }
         }
     }
 }
@@ -181,27 +218,28 @@ void init_menu() {
 void setting() {
 
     // 设置完成之后回到主界面
+
     init_menu();
+    is_setting = false;
 }
 
 // 封装绘图函数
 void Putimage(Tank_s tank_s, IMAGE image[]) {
-    putimage(tank_s.x * 50, tank_s.y * 50, &image[tank_s.direction]); 
+    putimage(tank_s.x, tank_s.y, &image[tank_s.direction]);
 }
 
-
-int key; // 当前按下的键
+ExMessage key;
+// int key; // 当前按下的键
 
 // 检查坐标是否合法
-bool check(int x, int y) {
-    if (x < 0 || x >= X_NUM || y < 0 || y >= Y_NUM)
+bool moveable(int x, int y) {
+    if (x < 0 || x + D > X_NUM * D || y < 0 || y  + D > Y_NUM * D)
         return false;
     return true;
 }
 
-
-
-
+void shot() {
+}
 
 // 运行游戏
 void play() {
@@ -211,67 +249,108 @@ void play() {
     IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4];
 
     // 加载我方坦克图像
-    loadimage(&my_tank[UP], _T("tank_player_1_U.png"), 50, 50);
-    loadimage(&my_tank[DOWN], _T("tank_player_1_D.png"), 50, 50);
-    loadimage(&my_tank[LEFT], _T("tank_player_1_L.png"), 50, 50);
-    loadimage(&my_tank[RIGHT], _T("tank_player_1_R.png"), 50, 50);
+    loadimage(&my_tank[UP], _T("tank_player_1_U.png"), D, D);
+    loadimage(&my_tank[DOWN], _T("tank_player_1_D.png"), D, D);
+    loadimage(&my_tank[LEFT], _T("tank_player_1_L.png"), D, D);
+    loadimage(&my_tank[RIGHT], _T("tank_player_1_R.png"), D, D);
 
     // 加载敌方普通坦克图像
-    loadimage(&enemy_tank_1[UP], _T("tank_enemy_1_U.png"), 50, 50);
-    loadimage(&enemy_tank_1[DOWN], _T("tank_enemy_1_D.png"), 50, 50);
-    loadimage(&enemy_tank_1[LEFT], _T("tank_enemy_1_L.png"), 50, 50);
-    loadimage(&enemy_tank_1[RIGHT], _T("tank_enemy_1_R.png"), 50, 50);
-    
+    loadimage(&enemy_tank_1[UP], _T("tank_enemy_1_U.png"), D, D);
+    loadimage(&enemy_tank_1[DOWN], _T("tank_enemy_1_D.png"), D, D);
+    loadimage(&enemy_tank_1[LEFT], _T("tank_enemy_1_L.png"), D, D);
+    loadimage(&enemy_tank_1[RIGHT], _T("tank_enemy_1_R.png"), D, D);
+
     // 加载敌方BOSS坦克图像
-    loadimage(&enemy_tank_2[UP], _T("tank_enemy_2_U.png"), 50, 50);
-    loadimage(&enemy_tank_2[DOWN], _T("tank_enemy_2_D.png"), 50, 50);
-    loadimage(&enemy_tank_2[LEFT], _T("tank_enemy_2_L.png"), 50, 50);
-    loadimage(&enemy_tank_2[RIGHT], _T("tank_enemy_2_R.png"), 50, 50);
+    loadimage(&enemy_tank_2[UP], _T("tank_enemy_2_U.png"), D, D);
+    loadimage(&enemy_tank_2[DOWN], _T("tank_enemy_2_D.png"), D, D);
+    loadimage(&enemy_tank_2[LEFT], _T("tank_enemy_2_L.png"), D, D);
+    loadimage(&enemy_tank_2[RIGHT], _T("tank_enemy_2_R.png"), D, D);
 
     // 初始化我方坦克
-    Tank_s my_tank_s = {10, 7, 11, 100, 100, 100, UP, true};
-    
-    Putimage(my_tank_s, my_tank);
-    
-    
-    while (true) {
+    Tank_s my_tank_s = {10, 7 * D, 11 * D, 7, 11, 100, 100, 5, UP, true};
 
-        Sleep(100);
-        if (_kbhit()) { // 检测是否有按键被按下
-            key = _getch(); // 获取当前按键
-            switch (key) {
-            case 'w': {
-                std ::cout << "111\n";
-                // 方向切换到向上
-                my_tank_s.direction = UP;
-                // 判断是否能向上走一格
-                if (check(my_tank_s.x, my_tank_s.y - 1.) && Map1[my_tank_s.x][my_tank_s.y - 1] == 0) {
-                    // 消除原来的图像
-                    solidrectangle(my_tank_s.x * 50, my_tank_s.y * 50, my_tank_s.x * 50 + 50, my_tank_s.y * 50 + 50); // 把帮助信息覆盖涂黑, 等效于不显示帮助信息
-                    // 改变我方坦克坐标
-                    my_tank_s.y -= 1;
-                    // 重新绘图
+    Putimage(my_tank_s, my_tank);
+
+    while (true) {
+        while (peekmessage(&key, EX_KEY)) {
+            
+            if (key.message == WM_KEYDOWN || key.message == WM_KEYUP) {
+                switch (key.vkcode) {
+                case 'W': {
+                    // 方向切换到向上
+                    my_tank_s.direction = UP;
                     Putimage(my_tank_s, my_tank);
+                    
+                    // 判断是否能向上走一格
+                    if (moveable(my_tank_s.x, my_tank_s.y - my_tank_s.speed) && Map1[my_tank_s.x / D][(my_tank_s.y - my_tank_s.speed) / D] == 0) {
+                        // 消除原来的图像
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                        // 改变我方坦克坐标
+                        my_tank_s.y -= my_tank_s.speed;
+                        // 重新绘图
+                        Putimage(my_tank_s, my_tank);
+                    }
+                    break;
                 }
+                case 'A': {
+                    // 方向切换到向左
+                    my_tank_s.direction = LEFT;
+                    Putimage(my_tank_s, my_tank);
+                    // 判断是否能向左走
+                    if (moveable(my_tank_s.x - my_tank_s.speed, my_tank_s.y) && Map1[(my_tank_s.x - my_tank_s.speed) / D][my_tank_s.y / D] == 0) {
+                        // 消除原来的图像
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                        // 改变我方坦克坐标
+                        my_tank_s.x -= my_tank_s.speed;
+                        // 重新绘图
+                        Putimage(my_tank_s, my_tank);
+                    }
+                    break;
+                }
+
                 break;
-            }
-            case 'a':
-                break;
-            case 's':
-                break;
-            case 'd':
-                break;
-            case 'p':
-                system("pause");
-                break;
-            case ' ':
-                break;
-            default:
-                break;
+                case 'S': {
+                    // 方向切换到向下
+                    my_tank_s.direction = DOWN;
+                    Putimage(my_tank_s, my_tank);
+                    // 判断是否能向下走
+                    if (moveable(my_tank_s.x, my_tank_s.y + my_tank_s.speed) && Map1[my_tank_s.x / D][(my_tank_s.y + my_tank_s.speed + D) / D] == 0) {
+                        // 消除原来的图像
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                        // 改变我方坦克坐标
+                        my_tank_s.y += my_tank_s.speed;
+                        // 重新绘图
+                        Putimage(my_tank_s, my_tank);
+                    }
+                    break;
+                }
+                case 'D': {
+                    // 方向切换到向右
+                    my_tank_s.direction = RIGHT;
+                    Putimage(my_tank_s, my_tank);
+                    // 判断是否能向右走
+                    if (moveable(my_tank_s.x + my_tank_s.speed, my_tank_s.y) && Map1[(my_tank_s.x + my_tank_s.speed + D) / D][my_tank_s.y / D] == 0) {
+                        // 消除原来的图像
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                        // 改变我方坦克坐标
+                        my_tank_s.x += my_tank_s.speed;
+                        // 重新绘图
+                        Putimage(my_tank_s, my_tank);
+                    }
+                    break;
+                }
+                case 'P':
+                    system("pause");
+                    break;
+                case ' ': {
+                    shot();
+                } break;
+                default:
+                    break;
+                }
             }
         }
     }
-
 }
 
 // 游戏结束
@@ -294,7 +373,7 @@ int main() {
     // 运行游戏
     if (ready_play) {
         play();
-        //std ::cout << "111";
+        // std ::cout << "111";
     }
 
     // 游戏结束
