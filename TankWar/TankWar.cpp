@@ -73,25 +73,22 @@ int Map1[X_NUM][Y_NUM] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 10},
+    {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 10, 1},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-};
-
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 void update_xy(Tank_s tank) {
     tank.X = tank.x / D;
     tank.Y = tank.y / D;
 }
-
 
 // 第二关, BOSS
 int Map2[X_NUM][Y_NUM] = {
@@ -229,12 +226,68 @@ void Putimage(Tank_s tank_s, IMAGE image[]) {
 }
 
 ExMessage key;
-// int key; // 当前按下的键
 
-// 检查坐标是否合法
-bool moveable(int x, int y) {
-    if (x < 0 || x + D > X_NUM * D || y < 0 || y  + D > Y_NUM * D)
+
+
+// 碰撞检测
+/**********************************************************************
+* 重难点
+***********************************************************************/
+
+
+bool moveable(int map[][Y_NUM], int x, int y, Tank_s tank) {
+    // 边界区域
+    if (x < 0 || y < 0 || x + D > 800 || y + D > 600)
         return false;
+    // 试探是否能向direction方向移动
+    switch (tank.direction) {
+    case UP: {
+        int tx = x / D * D;
+        int ty = (y - tank.speed) / D * D;
+        int TX = tx / D;
+        int TY = ty / D;
+        if (map[TX][TY]) {
+            if (ty + D >= y && (x < tx + D && x + D > tx))
+                return false;
+        }
+        break;
+    }
+    case DOWN: {
+        int tx = x / D * D;
+        int ty = (y + tank.speed) / D * D;
+        int TX = tx / D;
+        int TY = ty / D;
+        if (map[TX][TY]) {
+            if (y + D >= ty && (x < tx + D && x + D > tx))
+                return false;
+        }
+        break;
+    }      
+    case LEFT: {
+        int tx = (x - tank.speed) / D * D;
+        int ty = y / D * D;
+        int TX = tx / D;
+        int TY = ty / D;
+        if (map[TX][TY]) {
+            if (x <= tx + D && (ty - D < y && ty > y - D))
+                return false;
+        }
+        break;
+    }
+    case RIGHT: {
+        int tx = (x + tank.speed) / D * D;
+        int ty = y / D * D;
+        int TX = tx / D;
+        int TY = ty / D;
+        if (map[TX][TY - 1]) {
+            if (x + D >= tx && (ty - D < y && ty > y - D))
+                return false;
+        }
+        break;
+    }
+    default:
+        break;
+    }
     return true;
 }
 
@@ -267,22 +320,30 @@ void play() {
     loadimage(&enemy_tank_2[RIGHT], _T("tank_enemy_2_R.png"), D, D);
 
     // 初始化我方坦克
-    Tank_s my_tank_s = {10, 7 * D, 11 * D, 7, 11, 100, 100, 5, UP, true};
+    Tank_s my_tank_s;
+    for (int i = 0; i < X_NUM; i++) {
+        for (int j = 0; j < Y_NUM; j++) {
+            if (Map1[i][j] == 10) {
+                my_tank_s = {10, i * D, j*D, i, j, 100, 100, 5, UP, true};
+            }
+        }
+    }
+    
 
     Putimage(my_tank_s, my_tank);
 
     while (true) {
         while (peekmessage(&key, EX_KEY)) {
-            
+
             if (key.message == WM_KEYDOWN || key.message == WM_KEYUP) {
                 switch (key.vkcode) {
                 case 'W': {
                     // 方向切换到向上
                     my_tank_s.direction = UP;
                     Putimage(my_tank_s, my_tank);
-                    
+
                     // 判断是否能向上走一格
-                    if (moveable(my_tank_s.x, my_tank_s.y - my_tank_s.speed) && Map1[my_tank_s.x / D][(my_tank_s.y - my_tank_s.speed) / D] == 0) {
+                    if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
                         // 消除原来的图像
                         solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
                         // 改变我方坦克坐标
@@ -292,61 +353,63 @@ void play() {
                     }
                     break;
                 }
-                case 'A': {
-                    // 方向切换到向左
-                    my_tank_s.direction = LEFT;
-                    Putimage(my_tank_s, my_tank);
-                    // 判断是否能向左走
-                    if (moveable(my_tank_s.x - my_tank_s.speed, my_tank_s.y) && Map1[(my_tank_s.x - my_tank_s.speed) / D][my_tank_s.y / D] == 0) {
-                        // 消除原来的图像
-                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
-                        // 改变我方坦克坐标
-                        my_tank_s.x -= my_tank_s.speed;
-                        // 重新绘图
-                        Putimage(my_tank_s, my_tank);
-                    }
-                    break;
-                }
+                     case 'A': {
+                         // 方向切换到向左
+                         my_tank_s.direction = LEFT;
+                         Putimage(my_tank_s, my_tank);
+                         // 判断是否能向左走
+                         if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
+                             // 消除原来的图像
+                             solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                             // 改变我方坦克坐标
+                             my_tank_s.x -= my_tank_s.speed;
+                             // 重新绘图
+                             Putimage(my_tank_s, my_tank);
+                         }
+                         break;
+                     }
 
-                break;
-                case 'S': {
-                    // 方向切换到向下
-                    my_tank_s.direction = DOWN;
-                    Putimage(my_tank_s, my_tank);
-                    // 判断是否能向下走
-                    if (moveable(my_tank_s.x, my_tank_s.y + my_tank_s.speed) && Map1[my_tank_s.x / D][(my_tank_s.y + my_tank_s.speed + D) / D] == 0) {
-                        // 消除原来的图像
-                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
-                        // 改变我方坦克坐标
-                        my_tank_s.y += my_tank_s.speed;
-                        // 重新绘图
-                        Putimage(my_tank_s, my_tank);
-                    }
-                    break;
-                }
-                case 'D': {
-                    // 方向切换到向右
-                    my_tank_s.direction = RIGHT;
-                    Putimage(my_tank_s, my_tank);
-                    // 判断是否能向右走
-                    if (moveable(my_tank_s.x + my_tank_s.speed, my_tank_s.y) && Map1[(my_tank_s.x + my_tank_s.speed + D) / D][my_tank_s.y / D] == 0) {
-                        // 消除原来的图像
-                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
-                        // 改变我方坦克坐标
-                        my_tank_s.x += my_tank_s.speed;
-                        // 重新绘图
-                        Putimage(my_tank_s, my_tank);
-                    }
-                    break;
-                }
-                case 'P':
-                    system("pause");
-                    break;
-                case ' ': {
-                    shot();
-                } break;
-                default:
-                    break;
+                    // break;
+                     case 'S': {
+                         // 方向切换到向下
+                         my_tank_s.direction = DOWN;
+                         Putimage(my_tank_s, my_tank);
+                         // 判断是否能向下走
+                         if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
+                             // 消除原来的图像
+                             solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                             // 改变我方坦克坐标
+                             my_tank_s.y += my_tank_s.speed;
+                             // 重新绘图
+                             Putimage(my_tank_s, my_tank);
+                         }
+                         break;
+                     }
+                     case 'D': {
+                         // 方向切换到向右
+                         my_tank_s.direction = RIGHT;
+                         Putimage(my_tank_s, my_tank);
+                         // 判断是否能向右走
+                         if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
+                             // 消除原来的图像
+                             solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                             // 改变我方坦克坐标
+                             my_tank_s.x += my_tank_s.speed;
+                             // 重新绘图
+                             Putimage(my_tank_s, my_tank);
+                         }
+                         break;
+                     }
+                    // }
+                    // case 'P':
+                    //     system("pause");
+                    //     break;
+                    // case ' ': {
+                    //     shot();
+                    // } break;
+                    // default:
+                    //     break;
+                    // }
                 }
             }
         }
