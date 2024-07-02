@@ -1,12 +1,13 @@
-﻿
-#include <conio.h>
+﻿#include <conio.h>
 #include <graphics.h>
 #include <iostream>
 #include <stdio.h>
+#include <time.h>
+
+
 
 #define WIDTH 800  // 窗口宽度, 像素
 #define HEIGHT 600 // 窗口高度, 像素
-
 #define X_NUM 16 // 宽度方格
 #define Y_NUM 12 // 高度方格
 
@@ -31,9 +32,7 @@ struct Bullet_s {
  * 地图数据
  ******************************************/
 
-/******************************************
- * 注意, 绘图的x对应数组的y
- *******************************************/
+
 // 800 / 50 = 16, 600 / 50 = 12
 // 0表示空地, 1表示砖墙(wall_1, 可以摧毁), 2表示铁墙(wall_2, 不可以摧毁)
 // 10表示玩家, 100表示普通敌人, 200表示BOSS, 一个坦克占1个格子
@@ -62,11 +61,13 @@ int Map2[X_NUM][Y_NUM] = {
 
 };
 
+// 方向
 #define UP 0
 #define DOWN 1
 #define LEFT 2
 #define RIGHT 3
 
+// 全局条件判断
 bool ready_play = false;  // 是否可以开始游戏
 bool is_gameover = false; // 是否结束当前游戏
 bool is_setting = false;  // 是否处于设置界面
@@ -93,35 +94,19 @@ void show_help() {
 }
 
 void init_map() {
-    IMAGE Player, Enemy_1, Enemy_2, Wall_1, Wall_2;
-
+    IMAGE Wall_1, Wall_2;
+    // 载入墙体图片
     loadimage(&Wall_1, _T("wall_1.png"), 50, 50);
     loadimage(&Wall_2, _T("wall_2.png"), 50, 50);
-    loadimage(&Player, _T("tank_player_1_U.png"), 50, 50);
-    loadimage(&Enemy_1, _T("tank_enemy_1_D.png"), 50, 50);
-    loadimage(&Enemy_2, _T("tank_enemy_2_D.png"), 50, 50);
-
-    Tank_s my_tank = {10, 0, 0, 200, 100, 100, UP, true};
-    Tank_s enemy_1 = {100, 0, 0, 200, 100, 100, DOWN, true};
-    Tank_s enemy_2 = {200, 0, 0, 500, 200, 150, DOWN, true};
-    // 遍历地图数组, 显示墙和坦克
+    
+    // 遍历地图数组, 绘制地图
     for (int i = 0; i < X_NUM; i++) {
         for (int j = 0; j < Y_NUM; j++) {
             if (Map1[i][j] == 1) {
                 putimage(i * 50, j * 50, &Wall_1);
             } else if (Map1[i][j] == 2) {
                 putimage(i * 50, j * 50, &Wall_2);
-            } else if (Map1[i][j] == 10) {
-                putimage(i * 50, j * 50, &Player);
-                my_tank.x = i;
-                my_tank.y = j;
-                my_tank.direction = UP;
-            } else if (Map1[i][j] == 100) {
-                putimage(i * 50, j * 50, &Enemy_1);
-                enemy_1.x = i;
-                enemy_1.y = j;
-                enemy_1.direction = DOWN;
-            }
+            } 
         }
     }
 }
@@ -181,7 +166,6 @@ void init_menu() {
                 cleardevice(); // 清屏
                 break;
             }
-
             // 点击设置
             else if ((mouse.x >= SETTING_X && mouse.x <= SETTING_X + dx) && mouse.y >= SETTING_Y && mouse.y <= SETTING_Y + dy) {
                 is_setting = true;
@@ -200,15 +184,94 @@ void setting() {
     init_menu();
 }
 
+// 封装绘图函数
+void Putimage(Tank_s tank_s, IMAGE image[]) {
+    putimage(tank_s.x * 50, tank_s.y * 50, &image[tank_s.direction]); 
+}
+
+
+int key; // 当前按下的键
+
+// 检查坐标是否合法
+bool check(int x, int y) {
+    if (x < 0 || x >= X_NUM || y < 0 || y >= Y_NUM)
+        return false;
+    return true;
+}
+
+
+
+
+
 // 运行游戏
 void play() {
     // 加载并显示地图
     init_map();
-    /*while (true) {
-        if (is_gameover) {
-            break;
+    // 声明我方坦克和敌方坦克的图像指针
+    IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4];
+
+    // 加载我方坦克图像
+    loadimage(&my_tank[UP], _T("tank_player_1_U.png"), 50, 50);
+    loadimage(&my_tank[DOWN], _T("tank_player_1_D.png"), 50, 50);
+    loadimage(&my_tank[LEFT], _T("tank_player_1_L.png"), 50, 50);
+    loadimage(&my_tank[RIGHT], _T("tank_player_1_R.png"), 50, 50);
+
+    // 加载敌方普通坦克图像
+    loadimage(&enemy_tank_1[UP], _T("tank_enemy_1_U.png"), 50, 50);
+    loadimage(&enemy_tank_1[DOWN], _T("tank_enemy_1_D.png"), 50, 50);
+    loadimage(&enemy_tank_1[LEFT], _T("tank_enemy_1_L.png"), 50, 50);
+    loadimage(&enemy_tank_1[RIGHT], _T("tank_enemy_1_R.png"), 50, 50);
+    
+    // 加载敌方BOSS坦克图像
+    loadimage(&enemy_tank_2[UP], _T("tank_enemy_2_U.png"), 50, 50);
+    loadimage(&enemy_tank_2[DOWN], _T("tank_enemy_2_D.png"), 50, 50);
+    loadimage(&enemy_tank_2[LEFT], _T("tank_enemy_2_L.png"), 50, 50);
+    loadimage(&enemy_tank_2[RIGHT], _T("tank_enemy_2_R.png"), 50, 50);
+
+    // 初始化我方坦克
+    Tank_s my_tank_s = {10, 7, 11, 100, 100, 100, UP, true};
+    
+    Putimage(my_tank_s, my_tank);
+    
+    
+    while (true) {
+
+        Sleep(100);
+        if (_kbhit()) { // 检测是否有按键被按下
+            key = _getch(); // 获取当前按键
+            switch (key) {
+            case 'w': {
+                std ::cout << "111\n";
+                // 方向切换到向上
+                my_tank_s.direction = UP;
+                // 判断是否能向上走一格
+                if (check(my_tank_s.x, my_tank_s.y - 1.) && Map1[my_tank_s.x][my_tank_s.y - 1] == 0) {
+                    // 消除原来的图像
+                    solidrectangle(my_tank_s.x * 50, my_tank_s.y * 50, my_tank_s.x * 50 + 50, my_tank_s.y * 50 + 50); // 把帮助信息覆盖涂黑, 等效于不显示帮助信息
+                    // 改变我方坦克坐标
+                    my_tank_s.y -= 1;
+                    // 重新绘图
+                    Putimage(my_tank_s, my_tank);
+                }
+                break;
+            }
+            case 'a':
+                break;
+            case 's':
+                break;
+            case 'd':
+                break;
+            case 'p':
+                system("pause");
+                break;
+            case ' ':
+                break;
+            default:
+                break;
+            }
         }
-    }*/
+    }
+
 }
 
 // 游戏结束
@@ -229,8 +292,10 @@ int main() {
     init_menu();
 
     // 运行游戏
-    if (ready_play)
+    if (ready_play) {
         play();
+        //std ::cout << "111";
+    }
 
     // 游戏结束
     // game_over();
