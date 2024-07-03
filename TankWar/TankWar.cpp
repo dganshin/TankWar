@@ -43,7 +43,7 @@ struct Bullet_s {
 // 第一关, 普通
 
 int Map1[X_NUM][Y_NUM] = {
-    {1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 2, 1},
+    {1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1},
     {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {2, 2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1},
     {2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
@@ -56,9 +56,9 @@ int Map1[X_NUM][Y_NUM] = {
     {1, 2, 1, 2, 0, 1, 1, 2, 1, 1, 2, 1},
     {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1},
-    {10, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-    {2, 2, 2, 2, 2, 0, 1, 1, 2, 1, 2, 1},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
+    {10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1},
+    {2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1, 1},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
 
 // int Map1[X_NUM][Y_NUM] = {
 //     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -258,7 +258,7 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
             if (ty + D >= tank.y && (tank.x < tx + D && tank.x >= tx))
                 return false;
         }
-        if (map[TX + 1][TY] <= 2 && map[TX + 1][TY] > 0) {
+        if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
             if (ty + D >= tank.y && (tank.x < (TX + 1) * D && tank.x + D > (TX + 1) * D))
                 return false;
         }
@@ -273,11 +273,11 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int TY = ty / D + 1;
         ty = TY * D;
 
-        if (map[TX][TY] <= 2 && map[TX][TY] > 0) {
+        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
             if (tank.y + D >= (TY * D) && (tank.x < (TX * D) + D && tank.x + D > (TX * D)))
                 return false;
         }
-        if (map[TX + 1][TY] <= 2 && map[TX + 1][TY] > 0) {
+        if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
             if (tank.y + D >= ty && (tank.x < (TX + 1) * D + D && tank.x + D > (TX + 1) * D))
                 return false;
         }
@@ -293,12 +293,12 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int TY = ty / D;
         tx = TX * D;
 
-        if (map[TX][TY] <= 2 && map[TX][TY] > 0) {
+        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
             if (tank.x <= tx + D && (ty - D < tank.y && ty > tank.y - D))
                 return false;
         }
 
-        if (map[TX][TY + 1] <= 2 && map[TX][TY + 1] > 0) {
+        if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
             if (tank.x <= tx + D && ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
                 return false;
         }
@@ -313,11 +313,11 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int ty = tank.y / D * D;
         int TX = tx / D + 1;
         int TY = ty / D;
-        if (map[TX][TY] <= 2 && map[TX][TY] > 0) {
+        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
             if (tank.x + D >= tx && (ty - D < tank.y && ty > tank.y - D))
                 return false;
         }
-        if (map[TX][TY + 1] <= 2 && map[TX][TY + 1] > 0) {
+        if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
             if (tank.x + D >= tx && ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
                 return false;
         }
@@ -422,14 +422,14 @@ void play() {
     }
 
     int timer = 0; // 计时器
-
+    int shot[3] = {1, 1, 1};
     while (true && !is_gameover) {
 
         Sleep(1);
         timer++;
         // 处理敌人运动
         // 剩余敌人
-        if (timer % 40 == 0) { // 20 * 25 = 500ms
+        if (timer % 40 == 0) { // 敌方坦克移动速度
 
             for (int i = 0; i < Enemy_Num; i++) {
                 if (enemy_tank_1_s[i].is_alive) { // 如果存活
@@ -451,6 +451,8 @@ void play() {
                             enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
 
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                        } else {
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4; // 右转寻路算法
                         }
                         break;
                     }
@@ -468,6 +470,8 @@ void play() {
                             enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
                             enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                        } else {
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4;
                         }
                         break;
                     }
@@ -487,6 +491,8 @@ void play() {
                             enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
                             enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                        } else {
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4;
                         }
                         break;
                     }
@@ -502,6 +508,8 @@ void play() {
                             enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
                             enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                        } else {
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4;
                         }
                         break;
                     }
@@ -531,7 +539,6 @@ void play() {
             // std::cout << "(" << my_tank_s.x << "," << my_tank_s.y << ")" << '\n';
 
             if (key.message == WM_KEYDOWN || key.message == WM_KEYUP) {
-
                 switch (key.vkcode) {
                 case 'W': {
                     // 方向切换到向上
@@ -636,39 +643,80 @@ void play() {
                 putimage(my_bullet_s.x + 18, my_bullet_s.y + 18, &my_bullet); // 玩家
 
             for (int i = 0; i < Enemy_Num; i++) {
-                
-                if (enemy_tank_1_s[i].is_alive)
+                // 敌方子弹初始方向
+                if (enemy_tank_1_s[i].is_alive) {
                     enemy_bullet_s[i].status = true;
-                enemy_bullet_s[i].direction = enemy_tank_1_s[i].direction;
-                if (enemy_bullet_s[i].status) {
-                    putimage(enemy_bullet_s[i].x + 18, enemy_bullet_s[i].y + 18, &my_bullet); 
-                    switch (enemy_bullet_s[i].direction) {
-                    case UP: {
-                        enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
-                        enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
-
-                        break;
-                    }
-                    case DOWN: {
-                        enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
-                        enemy_bullet_s[i].y = (enemy_tank_1_s[i].y / D + 1) * D;
-
-                        break;
-                    }
-                    case LEFT: {
-                        enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
-                        enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
-
-                        break;
-                    }
-                    case RIGHT: {
-                        enemy_bullet_s[i].x = (enemy_tank_1_s[i].x / D + 1) * D;
-                        enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
-
-                        break;
-                    }
+                    enemy_bullet_s[i].direction = enemy_tank_1_s[i].direction;
+                } else {
+                    enemy_bullet_s[i].status = false;
                 }
-                
+            }
+
+            for (int i = 0; i < Enemy_Num; i++) {
+                if (enemy_bullet_s[i].status) {
+                    std::cout << shot[i] << ' ';
+                    if (shot[i]) {   // 如果没发射, 就取当前敌方坦克坐标
+                        shot[i] = 0; // 标记为发射了
+                        switch (enemy_bullet_s[i].direction) {
+                        case UP: {
+                            enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                            enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+
+                            break;
+                        }
+                        case DOWN: {
+                            enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                            enemy_bullet_s[i].y = (enemy_tank_1_s[i].y / D + 1) * D;
+
+                            break;
+                        }
+                        case LEFT: {
+                            enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                            enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+
+                            break;
+                        }
+                        case RIGHT: {
+                            enemy_bullet_s[i].x = (enemy_tank_1_s[i].x / D + 1) * D;
+                            enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+
+                            break;
+                        }
+                        }
+
+                    } else { // 如果已经发射了, 就继承子弹的上一个状态
+                        std::cout << "111";
+                        enemy_bullet_s[i].lx = enemy_bullet_s[i].x;
+                        enemy_bullet_s[i].ly = enemy_bullet_s[i].y;
+                        switch (enemy_bullet_s[i].direction) {
+                        case UP: {
+
+                            enemy_bullet_s[i].y -= enemy_bullet_s[i].speed;
+                            break;
+                        }
+                        case DOWN: {
+
+                            enemy_bullet_s[i].y += enemy_bullet_s[i].speed;
+                            break;
+                        }
+                        case LEFT: {
+
+                            enemy_bullet_s[i].x -= enemy_bullet_s[i].speed;
+                            break;
+                        }
+                        case RIGHT: {
+
+                            enemy_bullet_s[i].x += enemy_bullet_s[i].speed;
+
+                            break;
+                        }
+                        default:
+                            break;
+                        }
+                        if (enemy_bullet_s[i].status) {
+                            putimage(enemy_bullet_s[i].x + 18, enemy_bullet_s[i].y + 18, &my_bullet); // 绘制敌方子弹
+                        }
+                    }
                 }
             }
 
@@ -676,37 +724,6 @@ void play() {
 
             my_bullet_s.lx = my_bullet_s.x;
             my_bullet_s.ly = my_bullet_s.y;
-
-            for (int i = 0; i < Enemy_Num; i++) {
-                enemy_bullet_s[i].lx = enemy_bullet_s[i].x;
-                enemy_bullet_s[i].ly = enemy_bullet_s[i].y;
-
-                switch (enemy_bullet_s[i].direction) {
-                case UP: {
-
-                    enemy_bullet_s[i].y -= enemy_bullet_s[i].speed;
-                    break;
-                }
-                case DOWN: {
-
-                    enemy_bullet_s[i].y += enemy_bullet_s[i].speed;
-                    break;
-                }
-                case LEFT: {
-
-                    enemy_bullet_s[i].x -= enemy_bullet_s[i].speed;
-                    break;
-                }
-                case RIGHT: {
-
-                    enemy_bullet_s[i].x += enemy_bullet_s[i].speed;
-
-                    break;
-                }
-                default:
-                    break;
-                }
-            }
 
             switch (my_bullet_s.direction) {
             case UP: {
@@ -748,9 +765,9 @@ void play() {
                     my_bullet_s.status = false;
 
                 } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 10) { // 击中敌人
-
+                    my_bullet_s.status = false;
                     solidrectangle(my_bullet_s.x / D * D, my_bullet_s.y / D * D, my_bullet_s.x / D * D + D, my_bullet_s.y / D * D + D);
-                    Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 0;
+                    Map1[my_bullet_s.x / D][my_bullet_s.y / D] = 0;
                     int tx = my_bullet_s.x / D, ty = my_bullet_s.y / D;
                     for (int i = 0; i < Enemy_Num; i++) {
                         if (enemy_tank_1_s[i].X == tx && enemy_tank_1_s[i].Y == ty && enemy_tank_1_s[i].is_alive == true) {
@@ -762,31 +779,35 @@ void play() {
                 }
             }
 
-            
-                for (int i = 0; i < Enemy_Num; i++) {
-                if (enemy_bullet_s[i].x <= 800 && enemy_bullet_s[i].x >= 0 - D && enemy_bullet_s[i].y <= 600 && enemy_bullet_s[i].y >= 0 - D && enemy_bullet_s[i].status) {
-                        solidrectangle(enemy_bullet_s[i].lx + 18, enemy_bullet_s[i].ly + 18, enemy_bullet_s[i].lx + 10 + 18, enemy_bullet_s[i].ly + 10 + 18);
+            // 敌方子弹的碰撞判定
+            for (int i = 0; i < Enemy_Num; i++) {
+                if (enemy_bullet_s[i].x <= 800 + D && enemy_bullet_s[i].x >= 0 - D && enemy_bullet_s[i].y <= 600 + D && enemy_bullet_s[i].y >= 0 - D && enemy_bullet_s[i].status) {
+                    solidrectangle(enemy_bullet_s[i].lx + 18, enemy_bullet_s[i].ly + 18, enemy_bullet_s[i].lx + 10 + 18, enemy_bullet_s[i].ly + 10 + 18); // 消掉上一个子弹的图像
 
-                        if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 1) { // 消除砖墙
+                    if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 1) { // 消除砖墙
 
-                            Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] = 0;
-                            solidrectangle(enemy_bullet_s[i].x / D * D, enemy_bullet_s[i].y / D * D, enemy_bullet_s[i].x / D * D + D, enemy_bullet_s[i].y / D * D + D);
-                            enemy_bullet_s[i].status = false;
+                        Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] = 0;
+                        solidrectangle(enemy_bullet_s[i].x / D * D, enemy_bullet_s[i].y / D * D, enemy_bullet_s[i].x / D * D + D, enemy_bullet_s[i].y / D * D + D);
+                        enemy_bullet_s[i].status = false;
+                        shot[i] = 1;
 
-                        } else if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 2) { // 无法消除, 子弹湮灭
+                    } else if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 2) { // 无法消除, 子弹湮灭
 
-                            enemy_bullet_s[i].status = false;
-                        }
-
-                        if (enemy_bullet_s[i].x >= my_tank_s.x && enemy_bullet_s[i].y >= my_tank_s.y && enemy_bullet_s[i].x <= my_tank_s.x + 30 && enemy_bullet_s[i].y <= my_tank_s.y + 30) { // 击中我方
-                            // std::cout << "!!!!!!!!!";
-                            is_gameover = true;
-                            succees = false;
-                            // game_over();
-                        }
+                        enemy_bullet_s[i].status = false;
+                        shot[i] = 1;
                     }
+
+                    if (enemy_bullet_s[i].x >= my_tank_s.x && enemy_bullet_s[i].y >= my_tank_s.y && enemy_bullet_s[i].x <= my_tank_s.x + 30 && enemy_bullet_s[i].y <= my_tank_s.y + 30) { // 击中我方
+                        // std::cout << "!!!!!!!!!";
+                        is_gameover = true;
+                        succees = false;
+                        // game_over();
+                    }
+                } else {
+                    enemy_bullet_s[i].status = false;
+                    shot[i] = 1;
                 }
-            
+            }
         }
     }
 }
