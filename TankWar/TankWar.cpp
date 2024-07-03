@@ -43,59 +43,40 @@ struct Bullet_s {
 // 第一关, 普通
 
 int Map1[X_NUM][Y_NUM] = {
-    {1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {2, 2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1},
-    {2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+    {1, 2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1},
+    {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
     {1, 2, 2, 1, 2, 1, 0, 1, 2, 2, 2, 1},
     {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 2, 2, 1, 2, 2, 0, 1, 2, 1, 1, 1},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
-    {2, 2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {1, 2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 1},
     {1, 2, 1, 2, 0, 1, 1, 2, 1, 1, 2, 1},
     {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1},
     {10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1},
-    {2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1, 1},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
+    {1, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
 
-// int Map1[X_NUM][Y_NUM] = {
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 100, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
-// 第二关, BOSS
-int Map2[X_NUM][Y_NUM] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 100, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+int Map2[X_NUM][Y_NUM] = { // backup
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1},
+    {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+    {1, 2, 2, 1, 2, 1, 0, 1, 2, 2, 2, 1},
+    {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 2, 2, 1, 2, 2, 0, 1, 2, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {1, 2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 1},
+    {1, 2, 1, 2, 0, 1, 1, 2, 1, 1, 2, 1},
+    {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1},
+    {10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1},
+    {1, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
 
 // 方向
 #define UP 0
@@ -330,6 +311,8 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
     return true;
 }
 
+void play();
+
 // 游戏结束
 void game_over() {
     // 重新绘图
@@ -344,17 +327,60 @@ void game_over() {
     // 判断是否胜利
     settextstyle(50, 0, _T("微软雅黑"));
     if (succees) {
-        outtextxy(170 + 60 + 60 + 10, 360 + 40, _T("YOU WIN!!!"));
+        outtextxy(170 + 60 + 60 + 10, 360, _T("YOU WIN!!!"));
     } else {
 
-        outtextxy(170 + 60 + 60 + 10, 360 + 40, _T("YOU LOSE!!!"));
+        outtextxy(170 + 60 + 60 + 10, 360, _T("YOU LOSE!!!"));
+    }
+
+    // 绘制选项框
+    setlinecolor(WHITE);
+    setfillcolor(BLACK);
+
+    settextstyle(25, 0, _T("微软雅黑"));
+
+    fillrectangle(170 + 60 + 60 + 10, 360 + 60, 170 + 60 + 60 + 10 + 100, 360 + 100);
+    outtextxy(170 + 60 + 60 + 10 + 10, 360 + 65, _T("重新开始"));
+    fillrectangle(170 + 60 + 60 + 20 + 110, 360 + 60, 170 + 60 + 60 + 10 + 100 + 120, 360 + 100);
+    outtextxy(170 + 60 + 60 + 10 + 10 + 120, 360 + 65, _T("退出游戏"));
+
+    MOUSEMSG mouse;
+    while (true && is_gameover) {
+        mouse = GetMouseMsg(); // 获取当前鼠标信息
+        switch (mouse.uMsg) {
+        case WM_LBUTTONDOWN: {
+            if (mouse.x >= 170 + 60 + 60 + 10 && mouse.x <= 170 + 60 + 60 + 10 + 100 && mouse.y >= 360 + 60 && mouse.y <= 360 + 100) {
+                is_gameover = false;
+                play();
+                break;
+            }
+            if (mouse.x >= 170 + 60 + 60 + 20 + 110 && mouse.x <= 170 + 60 + 60 + 10 + 100 + 120 && mouse.y >= 360 + 60 && mouse.y <= 360 + 100) {
+                exit(0);
+            }
+        }
+        default:
+            break;
+        }
     }
 }
+
+int t_val = 3; // 敌人移动速度, 数字越小速度越快, 不能设置10, 有bug
 
 #define Enemy_Num 3 // 敌人数量
 int remain = Enemy_Num;
 // 运行游戏
 void play() {
+    // 清除残留
+    cleardevice();
+
+    // 恢复地图
+
+    for (int i = 0; i < X_NUM; i++) {
+        for (int j = 0; j < Y_NUM; j++) {
+            Map1[i][j] = Map2[i][j];
+        }
+    }
+
     // 加载并显示地图
     init_map();
     // 声明我方坦克和敌方坦克的图像指针
@@ -424,12 +450,19 @@ void play() {
     int timer = 0; // 计时器
     int shot[3] = {1, 1, 1};
     while (true && !is_gameover) {
+        // 自动开火
+        if (timer) {
+            // shot[0] = shot[1] = shot[2] = 1;
+            for (int i = 0; i < Enemy_Num; i++) {
+                enemy_bullet_s[i].status = true; // 强制唤醒
+            }
+        }
 
         Sleep(1);
         timer++;
         // 处理敌人运动
         // 剩余敌人
-        if (timer % 40 == 0) { // 敌方坦克移动速度
+        if (timer % t_val == 0) { // 敌方坦克移动速度
 
             for (int i = 0; i < Enemy_Num; i++) {
                 if (enemy_tank_1_s[i].is_alive) { // 如果存活
@@ -452,7 +485,7 @@ void play() {
 
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
                         } else {
-                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4; // 右转寻路算法
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + rand()) % 4; // 右转寻路算法
                         }
                         break;
                     }
@@ -471,7 +504,7 @@ void play() {
                             enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
                         } else {
-                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4;
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + rand()) % 4;
                         }
                         break;
                     }
@@ -492,7 +525,7 @@ void play() {
                             enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
                         } else {
-                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4;
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + rand()) % 4;
                         }
                         break;
                     }
@@ -509,7 +542,7 @@ void play() {
                             enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
                         } else {
-                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + 1) % 4;
+                            enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + rand()) % 4;
                         }
                         break;
                     }
@@ -651,10 +684,10 @@ void play() {
                     enemy_bullet_s[i].status = false;
                 }
             }
-
+            std::cout << "!!!!!!!!!!";
             for (int i = 0; i < Enemy_Num; i++) {
                 if (enemy_bullet_s[i].status) {
-                    std::cout << shot[i] << ' ';
+                    std::cout << shot[i];
                     if (shot[i]) {   // 如果没发射, 就取当前敌方坦克坐标
                         shot[i] = 0; // 标记为发射了
                         switch (enemy_bullet_s[i].direction) {
@@ -685,7 +718,7 @@ void play() {
                         }
 
                     } else { // 如果已经发射了, 就继承子弹的上一个状态
-                        std::cout << "111";
+                        // std::cout << "111";
                         enemy_bullet_s[i].lx = enemy_bullet_s[i].x;
                         enemy_bullet_s[i].ly = enemy_bullet_s[i].y;
                         switch (enemy_bullet_s[i].direction) {
@@ -822,8 +855,9 @@ int main() {
     }
 
     // 游戏结束
-    game_over();
+    if (is_gameover)
+        game_over();
 
-    system("pause");
+    // system("pause");
     return 0;
 }
