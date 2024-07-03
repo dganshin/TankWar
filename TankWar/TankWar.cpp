@@ -330,8 +330,8 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
     return true;
 }
 
-#define Enemy_Num 4 // 敌人数量
-
+#define Enemy_Num 3 // 敌人数量
+int remain = Enemy_Num;
 // 运行游戏
 void play() {
     // 加载并显示地图
@@ -372,6 +372,7 @@ void play() {
 
     // 敌方坦克
     Tank_s enemy_tank_1_s[Enemy_Num];
+
     IMAGE enemy_bullet[Enemy_Num];
 
     // 初始化位置
@@ -391,10 +392,105 @@ void play() {
     // 显示我方坦克图像
     Putimage(my_tank_s, my_tank);
 
-    // 初始化我方子弹
+    // 初始化子弹
     Bullet_s my_bullet_s = {800, 600, 25, UP, true};
+    Bullet_s enemy_bullet_s[Enemy_Num];
+
+    for (int i = 0; i < Enemy_Num; i++) {
+        enemy_bullet_s[i] = {800, 600, 25, DOWN, true};
+    }
+
+    int timer = 0; // 计时器
 
     while (true) {
+
+        Sleep(1);
+        timer++;
+        // 处理敌人运动
+        if (remain > 0) {      // 剩余敌人
+            if (timer >= 50) { // 20 * 25 = 500ms
+                timer = 0;
+                for (int i = 0; i < remain; i++) {
+                    if (enemy_tank_1_s[i].is_alive) { // 如果存活
+
+                        // 向初始方向方向移动一格
+                        Putimage(enemy_tank_1_s[i], enemy_tank_1);
+
+                        switch (enemy_tank_1_s[i].direction) {
+                        case UP: {
+                            // 判断是否能向上走一格
+                            if (moveable(Map1, enemy_tank_1_s[i])) {
+                                // 消除原来的图像
+                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
+                                enemy_tank_1_s[i].Y -= 1;
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                                // 重新绘图
+                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+
+                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                            }
+                            break;
+                        }
+                        case LEFT: {
+
+                            if (moveable(Map1, enemy_tank_1_s[i])) {
+                                // 消除原来的图像
+                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
+
+                                enemy_tank_1_s[i].X -= 1;
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                                // 重新绘图
+                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                            }
+                            break;
+                        }
+
+                            // break;
+                        case DOWN: {
+                            Putimage(enemy_tank_1_s[i], enemy_tank_1);
+
+                            if (moveable(Map1, enemy_tank_1_s[i])) {
+                                // 消除原来的图像
+                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
+
+                                enemy_tank_1_s[i].Y += 1;
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                                // 重新绘图
+                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                            }
+                            break;
+                        }
+                        case RIGHT: {
+
+                            if (moveable(Map1, enemy_tank_1_s[i])) {
+                                // 消除原来的图像
+                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
+                                enemy_tank_1_s[i].X += 1;
+                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                                // 重新绘图
+                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                            }
+                            break;
+                        }
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         // 热键检测
         if (peekmessage(&key, EX_KEY)) {
@@ -504,6 +600,7 @@ void play() {
         // 炮弹飞行
         if (my_bullet_s.status) {
             putimage(my_bullet_s.x + 18, my_bullet_s.y + 18, &my_bullet);
+            Sleep(20); // 睡眠20ms防止子弹过快
 
             my_bullet_s.lx = my_bullet_s.x;
             my_bullet_s.ly = my_bullet_s.y;
@@ -532,7 +629,6 @@ void play() {
             default:
                 break;
             }
-            Sleep(20);
 
             // 我方子弹
             if (my_bullet_s.x <= 800 && my_bullet_s.x >= 0 - D && my_bullet_s.y <= 600 && my_bullet_s.y >= 0 - D) {
@@ -543,15 +639,29 @@ void play() {
                     Map1[my_bullet_s.x / D][my_bullet_s.y / D] = 0;
                     solidrectangle(my_bullet_s.x / D * D, my_bullet_s.y / D * D, my_bullet_s.x / D * D + D, my_bullet_s.y / D * D + D);
                     my_bullet_s.status = false;
+
                 } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 2) { // 无法消除, 子弹湮灭
 
                     my_bullet_s.status = false;
-                } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 10) {
+
+                } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 10) { // 击中敌人
                     solidrectangle(my_bullet_s.x / D * D, my_bullet_s.y / D * D, my_bullet_s.x / D * D + D, my_bullet_s.y / D * D + D);
+                    Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 0;
+                    int tx = my_bullet_s.x / D, ty = my_bullet_s.y / D;
+                    for (int i = 0; i < Enemy_Num; i++) {
+                        if (enemy_tank_1_s[i].X == tx && enemy_tank_1_s[i].Y == ty && enemy_tank_1_s[i].is_alive == true) {
+                            enemy_tank_1_s[i].is_alive = false;
+                            break;
+                        }
+                    }
                 }
             }
+        }
 
-            // 敌方炮弹
+        // 处理敌方炮弹
+        for (int i = 0; i < remain; i++) {
+            if (enemy_bullet_s[i].status) {
+            }
         }
     }
 }
