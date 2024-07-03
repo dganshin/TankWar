@@ -50,20 +50,20 @@ struct Bullet_s {
 // 第一关, 普通
 
 // int Map1[X_NUM][Y_NUM] = {
-//     {1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1},
+//     {1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 2, 1},
 //     {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 //     {2, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1},
 //     {2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-//     {1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 1},
+//     {1, 2, 2, 1, 2, 1, 0, 1, 2, 2, 2, 1},
 //     {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-//     {1, 2, 2, 1, 2, 2, 2, 1, 2, 1, 1, 1},
-//     {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10},
-//     {2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1},
+//     {1, 2, 2, 1, 2, 2, 0, 1, 2, 1, 1, 1},
+//     {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+//     {2, 2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1},
 //     {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
 //     {1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1},
 //     {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
-//     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1},
-//     {100, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+//     {1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1},
+//     {10, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
 //     {2, 2, 2, 2, 2, 1, 1, 1, 2, 1, 2, 1},
 //     {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
 
@@ -73,11 +73,11 @@ int Map1[X_NUM][Y_NUM] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 100, 1},
-    {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 100, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -234,28 +234,33 @@ ExMessage key;
 
 bool moveable(int map[][Y_NUM], Tank_s tank) {
     // 边界区域
-    if (tank.x < 0 || tank.y < 0 || tank.x + D > 800 || tank.y + D > 600)
-        return false;
+    /*if (tank.x - tank.speed < 0 || tank.y - tank.speed < 0 || tank.x + D + tank.speed > 800 || tank.y + D + tank.speed > 600)
+        return false;*/
     // 试探是否能向direction方向移动
     switch (tank.direction) {
     case UP: {
+        if (tank.y - tank.speed < 0)
+            return false;
         int tx = tank.x / D * D;
         int ty = tank.y / D * D;
         int TX = tx / D;
         int TY = ty / D - 1;
         ty = TY * D;
-
+        std::cout << "TXTYT" << TX << " " << TY << '\n';
+        std::cout << "tx ty " << tx << " " << ty << '\n';
         if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
-            if (ty + D >= tank.y && (tank.x < tx + D && tank.x + D > tx))
+            if (ty + D >= tank.y && (tank.x < tx + D && tank.x >= tx))
                 return false;
         }
         if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
-            if (ty + D >= tank.y && (tank.x < (TX + 1) * D + D && tank.x + D > (TX + 1) * D))
+            if (ty + D >= tank.y && (tank.x < (TX + 1) * D && tank.x + D > (TX + 1) * D))
                 return false;
         }
         break;
     }
     case DOWN: {
+        if (tank.y + tank.speed + D > 600)
+            return false;
         int tx = tank.x / D * D;
         int ty = tank.y / D * D;
         int TX = tx / D;
@@ -274,6 +279,8 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
     }
 
     case LEFT: {
+        if (tank.x - tank.speed < 0)
+            return false;
         int tx = tank.x / D * D;
         int ty = tank.y / D * D;
         int TX = tx / D - 1;
@@ -294,6 +301,8 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
     }
 
     case RIGHT: {
+        if (tank.x + tank.speed + D > 800)
+            return false;
         int tx = tank.x / D * D;
         int ty = tank.y / D * D;
         int TX = tx / D + 1;
@@ -350,7 +359,7 @@ void play() {
     for (int i = 0; i < X_NUM; i++) {
         for (int j = 0; j < Y_NUM; j++) {
             if (Map1[i][j] == 100) {
-                my_tank_s = {100, i * D, j * D, i, j, 100, 100, 5, UP, true};
+                my_tank_s = {100, i * D, j * D, i, j, 100, 100, 10, UP, true};
             }
         }
     }
