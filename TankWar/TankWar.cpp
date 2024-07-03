@@ -258,7 +258,7 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
             if (ty + D >= tank.y && (tank.x < tx + D && tank.x >= tx))
                 return false;
         }
-        if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
+        if (map[TX + 1][TY] <= 2 && map[TX + 1][TY] > 0) {
             if (ty + D >= tank.y && (tank.x < (TX + 1) * D && tank.x + D > (TX + 1) * D))
                 return false;
         }
@@ -273,11 +273,11 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int TY = ty / D + 1;
         ty = TY * D;
 
-        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
+        if (map[TX][TY] <= 2 && map[TX][TY] > 0) {
             if (tank.y + D >= (TY * D) && (tank.x < (TX * D) + D && tank.x + D > (TX * D)))
                 return false;
         }
-        if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
+        if (map[TX + 1][TY] <= 2 && map[TX + 1][TY] > 0) {
             if (tank.y + D >= ty && (tank.x < (TX + 1) * D + D && tank.x + D > (TX + 1) * D))
                 return false;
         }
@@ -293,12 +293,12 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int TY = ty / D;
         tx = TX * D;
 
-        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
+        if (map[TX][TY] <= 2 && map[TX][TY] > 0) {
             if (tank.x <= tx + D && (ty - D < tank.y && ty > tank.y - D))
                 return false;
         }
 
-        if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
+        if (map[TX][TY + 1] <= 2 && map[TX][TY + 1] > 0) {
             if (tank.x <= tx + D && ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
                 return false;
         }
@@ -313,11 +313,11 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int ty = tank.y / D * D;
         int TX = tx / D + 1;
         int TY = ty / D;
-        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
+        if (map[TX][TY] <= 2 && map[TX][TY] > 0) {
             if (tank.x + D >= tx && (ty - D < tank.y && ty > tank.y - D))
                 return false;
         }
-        if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
+        if (map[TX][TY + 1] <= 2 && map[TX][TY + 1] > 0) {
             if (tank.x + D >= tx && ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
                 return false;
         }
@@ -630,41 +630,45 @@ void play() {
 
         // 炮弹飞行
         if (my_bullet_s.status || enemy_bullet_s[0].status || enemy_bullet_s[1].status || enemy_bullet_s[2].status) {
+
             // 绘制子弹
             if (my_bullet_s.status)
                 putimage(my_bullet_s.x + 18, my_bullet_s.y + 18, &my_bullet); // 玩家
 
             for (int i = 0; i < Enemy_Num; i++) {
-                if (enemy_bullet_s[i].status) {
-                    putimage(enemy_bullet_s[i].x + 18, enemy_bullet_s[i].y + 18, &my_bullet); // 玩家
-                }
-
+                
+                if (enemy_tank_1_s[i].is_alive)
+                    enemy_bullet_s[i].status = true;
                 enemy_bullet_s[i].direction = enemy_tank_1_s[i].direction;
-                switch (enemy_bullet_s[i].direction) {
-                case UP: {
-                    enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
-                    enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+                if (enemy_bullet_s[i].status) {
+                    putimage(enemy_bullet_s[i].x + 18, enemy_bullet_s[i].y + 18, &my_bullet); 
+                    switch (enemy_bullet_s[i].direction) {
+                    case UP: {
+                        enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                        enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
 
-                    break;
-                }
-                case DOWN: {
-                    enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
-                    enemy_bullet_s[i].y = (enemy_tank_1_s[i].y / D + 1) * D;
+                        break;
+                    }
+                    case DOWN: {
+                        enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                        enemy_bullet_s[i].y = (enemy_tank_1_s[i].y / D + 1) * D;
 
-                    break;
-                }
-                case LEFT: {
-                    enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
-                    enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+                        break;
+                    }
+                    case LEFT: {
+                        enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                        enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
 
-                    break;
-                }
-                case RIGHT: {
-                    enemy_bullet_s[i].x = (enemy_tank_1_s[i].x / D + 1) * D;
-                    enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+                        break;
+                    }
+                    case RIGHT: {
+                        enemy_bullet_s[i].x = (enemy_tank_1_s[i].x / D + 1) * D;
+                        enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
 
-                    break;
+                        break;
+                    }
                 }
+                
                 }
             }
 
@@ -730,7 +734,7 @@ void play() {
             }
 
             // 我方子弹
-            if (my_bullet_s.x <= 800 && my_bullet_s.x >= 0 - D && my_bullet_s.y <= 600 && my_bullet_s.y >= 0 - D) {
+            if (my_bullet_s.x <= 800 && my_bullet_s.x >= 0 - D && my_bullet_s.y <= 600 && my_bullet_s.y >= 0 - D && my_bullet_s.status) {
                 solidrectangle(my_bullet_s.lx + 18, my_bullet_s.ly + 18, my_bullet_s.lx + 10 + 18, my_bullet_s.ly + 10 + 18);
 
                 if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 1) { // 消除砖墙
@@ -758,9 +762,9 @@ void play() {
                 }
             }
 
-            if (timer % 200 == 0) {
+            
                 for (int i = 0; i < Enemy_Num; i++) {
-                    if (enemy_bullet_s[i].x <= 800 && enemy_bullet_s[i].x >= 0 - D && enemy_bullet_s[i].y <= 600 && enemy_bullet_s[i].y >= 0 - D) {
+                if (enemy_bullet_s[i].x <= 800 && enemy_bullet_s[i].x >= 0 - D && enemy_bullet_s[i].y <= 600 && enemy_bullet_s[i].y >= 0 - D && enemy_bullet_s[i].status) {
                         solidrectangle(enemy_bullet_s[i].lx + 18, enemy_bullet_s[i].ly + 18, enemy_bullet_s[i].lx + 10 + 18, enemy_bullet_s[i].ly + 10 + 18);
 
                         if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 1) { // 消除砖墙
@@ -782,7 +786,7 @@ void play() {
                         }
                     }
                 }
-            }
+            
         }
     }
 }
