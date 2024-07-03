@@ -9,34 +9,27 @@
 #define X_NUM 16   // 宽度方格
 #define Y_NUM 12   // 高度方格
 
-// 全局变量 一个方格的像素差距
-#define D 50
+#define D 50 // 全局变量 一个方格的像素差距
 
 // 坦克结构体
 struct Tank_s {
-    // 10: 玩家, 100: 普通敌人, 200: BOSS
-    int id;
-    // 在地图上的像素坐标 x:0-800, y:0-600
-    int x, y;
-    // 相对坐标
-    int X, Y;
-    // 血量
-    int health;
-    // 炮弹攻击力
-    int atk;
-    // 移动速度
-    int speed;
-    // 坦克当前朝向
-    int direction;
-    // 坦克是否存活
-    bool is_alive = true;
+    int id;               // 100: 玩家, 10: 普通敌人, 20: BOSS
+    int x, y;             // 在地图上的像素坐标 x:0-800, y:0-600
+    int X, Y;             // 相对坐标
+    int health;           // 血量
+    int atk;              // 炮弹攻击力
+    int speed;            // 移动速度
+    int direction;        // 坦克当前朝向
+    bool is_alive = true; // 坦克是否存活
 };
 
 // 炮弹结构体
 struct Bullet_s {
-    int x, y;  // 炮弹坐标
-    int akt;   // 炮弹伤害
-    int speed; // 炮弹速度
+    int x, y;           // 炮弹坐标(最小限度25)
+    int speed;          // 炮弹速度
+    int direction;      // 炮弹方向
+    bool status = true; // 炮弹状态, 是否能显示
+    int lx, ly;         // lastx, lasty
 };
 
 /******************************************
@@ -49,25 +42,44 @@ struct Bullet_s {
 // 每一个砖块占一格
 // 第一关, 普通
 
-// int Map1[X_NUM][Y_NUM] = {
-//     {1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 2, 1},
-//     {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-//     {2, 2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1},
-//     {2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-//     {1, 2, 2, 1, 2, 1, 0, 1, 2, 2, 2, 1},
-//     {100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-//     {1, 2, 2, 1, 2, 2, 0, 1, 2, 1, 1, 1},
-//     {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
-//     {2, 2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1},
-//     {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-//     {1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1},
-//     {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
-//     {1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1},
-//     {10, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
-//     {2, 2, 2, 2, 2, 1, 1, 1, 2, 1, 2, 1},
-//     {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
-
 int Map1[X_NUM][Y_NUM] = {
+    {1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 2, 1},
+    {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {2, 2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1},
+    {2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+    {1, 2, 2, 1, 2, 1, 0, 1, 2, 2, 2, 1},
+    {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 2, 2, 1, 2, 2, 0, 1, 2, 1, 1, 1},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {2, 2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+    {1, 2, 1, 2, 0, 1, 1, 2, 1, 1, 2, 1},
+    {1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1},
+    {10, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1},
+    {2, 2, 2, 2, 2, 0, 1, 1, 2, 1, 2, 1},
+    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
+
+// int Map1[X_NUM][Y_NUM] = {
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 100, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+//     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+
+// 第二关, BOSS
+int Map2[X_NUM][Y_NUM] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -85,16 +97,6 @@ int Map1[X_NUM][Y_NUM] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-void update_xy(Tank_s tank) {
-    tank.X = tank.x / D;
-    tank.Y = tank.y / D;
-}
-
-// 第二关, BOSS
-int Map2[X_NUM][Y_NUM] = {
-
-};
-
 // 方向
 #define UP 0
 #define DOWN 1
@@ -106,6 +108,7 @@ bool ready_play = false;  // 是否可以开始游戏
 bool is_gameover = false; // 是否结束当前游戏
 bool is_setting = false;  // 是否处于设置界面
 
+// 图形界面微调参数
 int dx = 68; // 三个按键之间的间隔
 int dy = 40; // 按键的高度
 
@@ -127,8 +130,10 @@ void show_help() {
     outtextxy(170 + 60, 360, _T("上:W 下:S 左:A 右:D 攻击:Space 暂停:P"));
 }
 
+// 初始化地图
 void init_map() {
-    IMAGE Wall_1, Wall_2;
+    IMAGE Wall_1, Wall_2; // 图像指针
+
     // 载入墙体图片
     loadimage(&Wall_1, _T("wall_1.png"), D, D);
     loadimage(&Wall_2, _T("wall_2.png"), D, D);
@@ -154,6 +159,7 @@ void init_menu() {
     initgraph(WIDTH, HEIGHT);
 
     IMAGE logo;
+
     // 加载logo
     loadimage(&logo, _T("logo.png"), 480, 54); // 特定数据请不要改动
 
@@ -166,6 +172,7 @@ void init_menu() {
     setfillcolor(BLACK); // 框内填充的颜色: 黑色
 
     settextstyle(25, 0, _T("微软雅黑"));
+
     // 绘制帮助选项框(x1, y1, x2, y2)
     int dx = 68; // 三个按键之间的间隔
     int dy = 40; // 按键的高度
@@ -227,9 +234,8 @@ void Putimage(Tank_s tank_s, IMAGE image[]) {
 
 ExMessage key;
 
-// 碰撞检测
 /**********************************************************************
- * 重难点
+ * 重难点 碰撞检测与边界判定
  ***********************************************************************/
 
 bool moveable(int map[][Y_NUM], Tank_s tank) {
@@ -246,8 +252,8 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int TX = tx / D;
         int TY = ty / D - 1;
         ty = TY * D;
-        std::cout << "TXTYT" << TX << " " << TY << '\n';
-        std::cout << "tx ty " << tx << " " << ty << '\n';
+        // std::cout << "TXTYT" << TX << " " << TY << '\n';
+        // std::cout << "tx ty " << tx << " " << ty << '\n';
         if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
             if (ty + D >= tank.y && (tank.x < tx + D && tank.x >= tx))
                 return false;
@@ -307,8 +313,6 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int ty = tank.y / D * D;
         int TX = tx / D + 1;
         int TY = ty / D;
-        std::cout << "TXTYT" << TX << " " << TY << '\n';
-        std::cout << "tx ty " << tx << " " << ty << '\n';
         if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
             if (tank.x + D >= tx && (ty - D < tank.y && ty > tank.y - D))
                 return false;
@@ -326,15 +330,14 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
     return true;
 }
 
-void shot() {
-}
+#define Enemy_Num 4 // 敌人数量
 
 // 运行游戏
 void play() {
     // 加载并显示地图
     init_map();
     // 声明我方坦克和敌方坦克的图像指针
-    IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4];
+    IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4], my_bullet;
 
     // 加载我方坦克图像
     loadimage(&my_tank[UP], _T("tank_player_1_U.png"), D, D);
@@ -354,6 +357,9 @@ void play() {
     loadimage(&enemy_tank_2[LEFT], _T("tank_enemy_2_L.png"), D, D);
     loadimage(&enemy_tank_2[RIGHT], _T("tank_enemy_2_R.png"), D, D);
 
+    // 加载子弹图像
+    loadimage(&my_bullet, _T("bullet.png"), 10, 10);
+
     // 初始化我方坦克
     Tank_s my_tank_s;
     for (int i = 0; i < X_NUM; i++) {
@@ -364,13 +370,41 @@ void play() {
         }
     }
 
+    // 敌方坦克
+    Tank_s enemy_tank_1_s[Enemy_Num];
+    IMAGE enemy_bullet[Enemy_Num];
+
+    // 初始化位置
+    int cnt = 0;
+    for (int i = 0; i < X_NUM; i++) {
+        for (int j = 0; j < Y_NUM; j++) {
+            if (Map1[i][j] == 10) {
+                enemy_tank_1_s[cnt++] = {10, i * D, j * D, i, j, 100, 100, 10, DOWN, true};
+            }
+        }
+    }
+    // cnt--;
+    for (int i = 0; i < cnt; i++) {
+        Putimage(enemy_tank_1_s[i], enemy_tank_1);
+    }
+
+    // 显示我方坦克图像
     Putimage(my_tank_s, my_tank);
 
+    // 初始化我方子弹
+    Bullet_s my_bullet_s = {800, 600, 25, UP, true};
+
     while (true) {
-        while (peekmessage(&key, EX_KEY)) {
-            // Sleep(500);
-            std::cout << "(" << my_tank_s.x << "," << my_tank_s.y << ")" << '\n';
-            if (key.message == WM_KEYDOWN) {
+
+        // 热键检测
+        if (peekmessage(&key, EX_KEY)) {
+
+            /***************
+             * debug
+             *************/
+            // std::cout << "(" << my_tank_s.x << "," << my_tank_s.y << ")" << '\n';
+
+            if (key.message == WM_KEYDOWN || key.message == WM_KEYUP) {
                 switch (key.vkcode) {
                 case 'W': {
                     // 方向切换到向上
@@ -435,18 +469,89 @@ void play() {
                     }
                     break;
                 }
-                    // }
-                    // case 'P':
-                    //     system("pause");
-                    //     break;
-                    // case ' ': {
-                    //     shot();
-                    // } break;
-                    // default:
-                    //     break;
-                    // }
+
+                case ' ': { // 开火
+                    my_bullet_s.status = true;
+                    my_bullet_s.direction = my_tank_s.direction;
+                    switch (my_bullet_s.direction) {
+                    case UP: {
+                        my_bullet_s.x = my_tank_s.x / D * D;
+                        my_bullet_s.y = my_tank_s.y / D * D;
+
+                        break;
+                    }
+                    case DOWN: {
+                        my_bullet_s.x = my_tank_s.x / D * D;
+                        my_bullet_s.y = (my_tank_s.y / D + 1) * D;
+                        break;
+                    }
+                    case LEFT: {
+                        my_bullet_s.x = my_tank_s.x / D * D;
+                        my_bullet_s.y = (my_tank_s.y / D) * D;
+                        break;
+                    }
+                    case RIGHT: {
+                        my_bullet_s.x = (my_tank_s.x / D + 1) * D;
+                        my_bullet_s.y = (my_tank_s.y / D) * D;
+                        break;
+                    }
+                    }
+                }
                 }
             }
+        }
+
+        // 炮弹飞行
+        if (my_bullet_s.status) {
+            putimage(my_bullet_s.x + 18, my_bullet_s.y + 18, &my_bullet);
+
+            my_bullet_s.lx = my_bullet_s.x;
+            my_bullet_s.ly = my_bullet_s.y;
+
+            switch (my_bullet_s.direction) {
+            case UP: {
+
+                my_bullet_s.y -= my_bullet_s.speed;
+                break;
+            }
+            case DOWN: {
+
+                my_bullet_s.y += my_bullet_s.speed;
+                break;
+            }
+            case LEFT: {
+
+                my_bullet_s.x -= my_bullet_s.speed;
+                break;
+            }
+            case RIGHT: {
+
+                my_bullet_s.x += my_bullet_s.speed;
+                break;
+            }
+            default:
+                break;
+            }
+            Sleep(20);
+
+            // 我方子弹
+            if (my_bullet_s.x <= 800 && my_bullet_s.x >= 0 - D && my_bullet_s.y <= 600 && my_bullet_s.y >= 0 - D) {
+                solidrectangle(my_bullet_s.lx + 18, my_bullet_s.ly + 18, my_bullet_s.lx + 10 + 18, my_bullet_s.ly + 10 + 18);
+
+                if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 1) { // 消除砖墙
+
+                    Map1[my_bullet_s.x / D][my_bullet_s.y / D] = 0;
+                    solidrectangle(my_bullet_s.x / D * D, my_bullet_s.y / D * D, my_bullet_s.x / D * D + D, my_bullet_s.y / D * D + D);
+                    my_bullet_s.status = false;
+                } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 2) { // 无法消除, 子弹湮灭
+
+                    my_bullet_s.status = false;
+                } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 10) {
+                    solidrectangle(my_bullet_s.x / D * D, my_bullet_s.y / D * D, my_bullet_s.x / D * D + D, my_bullet_s.y / D * D + D);
+                }
+            }
+
+            // 敌方炮弹
         }
     }
 }
