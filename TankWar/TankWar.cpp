@@ -107,7 +107,7 @@ int Map2[X_NUM][Y_NUM] = {
 bool ready_play = false;  // 是否可以开始游戏
 bool is_gameover = false; // 是否结束当前游戏
 bool is_setting = false;  // 是否处于设置界面
-
+bool succees = false;
 // 图形界面微调参数
 int dx = 68; // 三个按键之间的间隔
 int dy = 40; // 按键的高度
@@ -330,6 +330,27 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
     return true;
 }
 
+// 游戏结束
+void game_over() {
+    // 重新绘图
+    // initgraph(WIDTH, HEIGHT);
+    cleardevice();
+
+    // 显示gameover
+    IMAGE gameover;
+    loadimage(&gameover, _T("game_over.bmp"), 204, 132);
+    putimage(298, 180, &gameover);
+
+    // 判断是否胜利
+    settextstyle(50, 0, _T("微软雅黑"));
+    if (succees) {
+        outtextxy(170 + 60 + 60 + 10, 360 + 40, _T("YOU WIN!!!"));
+    } else {
+
+        outtextxy(170 + 60 + 60 + 10, 360 + 40, _T("YOU LOSE!!!"));
+    }
+}
+
 #define Enemy_Num 3 // 敌人数量
 int remain = Enemy_Num;
 // 运行游戏
@@ -337,7 +358,7 @@ void play() {
     // 加载并显示地图
     init_map();
     // 声明我方坦克和敌方坦克的图像指针
-    IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4], my_bullet;
+    IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4], my_bullet; // 子弹是公用的
 
     // 加载我方坦克图像
     loadimage(&my_tank[UP], _T("tank_player_1_U.png"), D, D);
@@ -402,94 +423,103 @@ void play() {
 
     int timer = 0; // 计时器
 
-    while (true) {
+    while (true && !is_gameover) {
 
         Sleep(1);
         timer++;
         // 处理敌人运动
-        if (remain > 0) {      // 剩余敌人
-            if (timer >= 50) { // 20 * 25 = 500ms
-                timer = 0;
-                for (int i = 0; i < remain; i++) {
-                    if (enemy_tank_1_s[i].is_alive) { // 如果存活
+        // 剩余敌人
+        if (timer % 40 == 0) { // 20 * 25 = 500ms
 
-                        // 向初始方向方向移动一格
+            for (int i = 0; i < Enemy_Num; i++) {
+                if (enemy_tank_1_s[i].is_alive) { // 如果存活
+
+                    // 向初始方向方向移动一格
+                    Putimage(enemy_tank_1_s[i], enemy_tank_1);
+
+                    switch (enemy_tank_1_s[i].direction) {
+                    case UP: {
+                        // 判断是否能向上走一格
+                        if (moveable(Map1, enemy_tank_1_s[i])) {
+                            // 消除原来的图像
+                            solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
+                            enemy_tank_1_s[i].Y -= 1;
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                            // 重新绘图
+                            enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                            enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+
+                            Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                        }
+                        break;
+                    }
+                    case LEFT: {
+
+                        if (moveable(Map1, enemy_tank_1_s[i])) {
+                            // 消除原来的图像
+                            solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
+
+                            enemy_tank_1_s[i].X -= 1;
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                            // 重新绘图
+                            enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                            enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+                            Putimage(enemy_tank_1_s[i], enemy_tank_1);
+                        }
+                        break;
+                    }
+
+                        // break;
+                    case DOWN: {
                         Putimage(enemy_tank_1_s[i], enemy_tank_1);
 
-                        switch (enemy_tank_1_s[i].direction) {
-                        case UP: {
-                            // 判断是否能向上走一格
-                            if (moveable(Map1, enemy_tank_1_s[i])) {
-                                // 消除原来的图像
-                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
-                                enemy_tank_1_s[i].Y -= 1;
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
-                                // 重新绘图
-                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
-                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+                        if (moveable(Map1, enemy_tank_1_s[i])) {
+                            // 消除原来的图像
+                            solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
 
-                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
-                            }
-                            break;
-                        }
-                        case LEFT: {
-
-                            if (moveable(Map1, enemy_tank_1_s[i])) {
-                                // 消除原来的图像
-                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
-
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
-
-                                enemy_tank_1_s[i].X -= 1;
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
-                                // 重新绘图
-                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
-                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
-                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
-                            }
-                            break;
-                        }
-
-                            // break;
-                        case DOWN: {
+                            enemy_tank_1_s[i].Y += 1;
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                            // 重新绘图
+                            enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                            enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
                             Putimage(enemy_tank_1_s[i], enemy_tank_1);
-
-                            if (moveable(Map1, enemy_tank_1_s[i])) {
-                                // 消除原来的图像
-                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
-
-                                enemy_tank_1_s[i].Y += 1;
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
-                                // 重新绘图
-                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
-                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
-                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
-                            }
-                            break;
                         }
-                        case RIGHT: {
+                        break;
+                    }
+                    case RIGHT: {
 
-                            if (moveable(Map1, enemy_tank_1_s[i])) {
-                                // 消除原来的图像
-                                solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
-                                enemy_tank_1_s[i].X += 1;
-                                Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
-                                // 重新绘图
-                                enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
-                                enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
-                                Putimage(enemy_tank_1_s[i], enemy_tank_1);
-                            }
-                            break;
+                        if (moveable(Map1, enemy_tank_1_s[i])) {
+                            // 消除原来的图像
+                            solidrectangle(enemy_tank_1_s[i].X * D, enemy_tank_1_s[i].Y * D, enemy_tank_1_s[i].X * D + D, enemy_tank_1_s[i].Y * D + D);
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 0;
+                            enemy_tank_1_s[i].X += 1;
+                            Map1[enemy_tank_1_s[i].X][enemy_tank_1_s[i].Y] = 10;
+                            // 重新绘图
+                            enemy_tank_1_s[i].x = enemy_tank_1_s[i].X * D;
+                            enemy_tank_1_s[i].y = enemy_tank_1_s[i].Y * D;
+                            Putimage(enemy_tank_1_s[i], enemy_tank_1);
                         }
-                        default:
-                            break;
-                        }
+                        break;
+                    }
+                    default:
+                        break;
                     }
                 }
             }
+        }
+        int cnt = 0;
+        for (int i = 0; i < Enemy_Num; i++) {
+            if (!enemy_tank_1_s[i].is_alive)
+                cnt++;
+        }
+        if (cnt == Enemy_Num) {
+            succees = true;
+            is_gameover = true;
+            break;
         }
 
         // 热键检测
@@ -501,6 +531,7 @@ void play() {
             // std::cout << "(" << my_tank_s.x << "," << my_tank_s.y << ")" << '\n';
 
             if (key.message == WM_KEYDOWN || key.message == WM_KEYUP) {
+
                 switch (key.vkcode) {
                 case 'W': {
                     // 方向切换到向上
@@ -598,12 +629,80 @@ void play() {
         }
 
         // 炮弹飞行
-        if (my_bullet_s.status) {
-            putimage(my_bullet_s.x + 18, my_bullet_s.y + 18, &my_bullet);
+        if (my_bullet_s.status || enemy_bullet_s[0].status || enemy_bullet_s[1].status || enemy_bullet_s[2].status) {
+            // 绘制子弹
+            if (my_bullet_s.status)
+                putimage(my_bullet_s.x + 18, my_bullet_s.y + 18, &my_bullet); // 玩家
+
+            for (int i = 0; i < Enemy_Num; i++) {
+                if (enemy_bullet_s[i].status) {
+                    putimage(enemy_bullet_s[i].x + 18, enemy_bullet_s[i].y + 18, &my_bullet); // 玩家
+                }
+
+                enemy_bullet_s[i].direction = enemy_tank_1_s[i].direction;
+                switch (enemy_bullet_s[i].direction) {
+                case UP: {
+                    enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                    enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+
+                    break;
+                }
+                case DOWN: {
+                    enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                    enemy_bullet_s[i].y = (enemy_tank_1_s[i].y / D + 1) * D;
+
+                    break;
+                }
+                case LEFT: {
+                    enemy_bullet_s[i].x = enemy_tank_1_s[i].x / D * D;
+                    enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+
+                    break;
+                }
+                case RIGHT: {
+                    enemy_bullet_s[i].x = (enemy_tank_1_s[i].x / D + 1) * D;
+                    enemy_bullet_s[i].y = enemy_tank_1_s[i].y / D * D;
+
+                    break;
+                }
+                }
+            }
+
             Sleep(20); // 睡眠20ms防止子弹过快
 
             my_bullet_s.lx = my_bullet_s.x;
             my_bullet_s.ly = my_bullet_s.y;
+
+            for (int i = 0; i < Enemy_Num; i++) {
+                enemy_bullet_s[i].lx = enemy_bullet_s[i].x;
+                enemy_bullet_s[i].ly = enemy_bullet_s[i].y;
+
+                switch (enemy_bullet_s[i].direction) {
+                case UP: {
+
+                    enemy_bullet_s[i].y -= enemy_bullet_s[i].speed;
+                    break;
+                }
+                case DOWN: {
+
+                    enemy_bullet_s[i].y += enemy_bullet_s[i].speed;
+                    break;
+                }
+                case LEFT: {
+
+                    enemy_bullet_s[i].x -= enemy_bullet_s[i].speed;
+                    break;
+                }
+                case RIGHT: {
+
+                    enemy_bullet_s[i].x += enemy_bullet_s[i].speed;
+
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
 
             switch (my_bullet_s.direction) {
             case UP: {
@@ -645,38 +744,47 @@ void play() {
                     my_bullet_s.status = false;
 
                 } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 10) { // 击中敌人
+
                     solidrectangle(my_bullet_s.x / D * D, my_bullet_s.y / D * D, my_bullet_s.x / D * D + D, my_bullet_s.y / D * D + D);
                     Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 0;
                     int tx = my_bullet_s.x / D, ty = my_bullet_s.y / D;
                     for (int i = 0; i < Enemy_Num; i++) {
                         if (enemy_tank_1_s[i].X == tx && enemy_tank_1_s[i].Y == ty && enemy_tank_1_s[i].is_alive == true) {
-                            enemy_tank_1_s[i].is_alive = false;
+                            enemy_tank_1_s[i].is_alive = false; //
+                            enemy_bullet_s[i].status = false;   // 取消子弹状态
                             break;
                         }
                     }
                 }
             }
-        }
 
-        // 处理敌方炮弹
-        for (int i = 0; i < remain; i++) {
-            if (enemy_bullet_s[i].status) {
+            if (timer % 200 == 0) {
+                for (int i = 0; i < Enemy_Num; i++) {
+                    if (enemy_bullet_s[i].x <= 800 && enemy_bullet_s[i].x >= 0 - D && enemy_bullet_s[i].y <= 600 && enemy_bullet_s[i].y >= 0 - D) {
+                        solidrectangle(enemy_bullet_s[i].lx + 18, enemy_bullet_s[i].ly + 18, enemy_bullet_s[i].lx + 10 + 18, enemy_bullet_s[i].ly + 10 + 18);
+
+                        if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 1) { // 消除砖墙
+
+                            Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] = 0;
+                            solidrectangle(enemy_bullet_s[i].x / D * D, enemy_bullet_s[i].y / D * D, enemy_bullet_s[i].x / D * D + D, enemy_bullet_s[i].y / D * D + D);
+                            enemy_bullet_s[i].status = false;
+
+                        } else if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 2) { // 无法消除, 子弹湮灭
+
+                            enemy_bullet_s[i].status = false;
+                        }
+
+                        if (enemy_bullet_s[i].x >= my_tank_s.x && enemy_bullet_s[i].y >= my_tank_s.y && enemy_bullet_s[i].x <= my_tank_s.x + 30 && enemy_bullet_s[i].y <= my_tank_s.y + 30) { // 击中我方
+                            // std::cout << "!!!!!!!!!";
+                            is_gameover = true;
+                            succees = false;
+                            // game_over();
+                        }
+                    }
+                }
             }
         }
     }
-}
-
-// 游戏结束
-void game_over() {
-    // 重新绘图
-    initgraph(WIDTH, HEIGHT);
-
-    // 显示gameover
-    IMAGE gameover;
-    loadimage(&gameover, _T("game_over.bmp"), 204, 132);
-    putimage(298, 180, &gameover);
-
-    // 判断是否胜利
 }
 
 int main() {
@@ -686,11 +794,10 @@ int main() {
     // 运行游戏
     if (ready_play) {
         play();
-        // std ::cout << "111";
     }
 
     // 游戏结束
-    // game_over();
+    game_over();
 
     system("pause");
     return 0;
