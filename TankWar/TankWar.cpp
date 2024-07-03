@@ -75,8 +75,8 @@ int Map1[X_NUM][Y_NUM] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 10, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 100, 1},
+    {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -227,62 +227,88 @@ void Putimage(Tank_s tank_s, IMAGE image[]) {
 
 ExMessage key;
 
-
-
 // 碰撞检测
 /**********************************************************************
-* 重难点
-***********************************************************************/
+ * 重难点
+ ***********************************************************************/
 
-
-bool moveable(int map[][Y_NUM], int x, int y, Tank_s tank) {
+bool moveable(int map[][Y_NUM], Tank_s tank) {
     // 边界区域
-    if (x < 0 || y < 0 || x + D > 800 || y + D > 600)
+    if (tank.x < 0 || tank.y < 0 || tank.x + D > 800 || tank.y + D > 600)
         return false;
     // 试探是否能向direction方向移动
     switch (tank.direction) {
     case UP: {
-        int tx = x / D * D;
-        int ty = (y - tank.speed) / D * D;
+        int tx = tank.x / D * D;
+        int ty = tank.y / D * D;
         int TX = tx / D;
-        int TY = ty / D;
-        if (map[TX][TY]) {
-            if (ty + D >= y && (x < tx + D && x + D > tx))
+        int TY = ty / D - 1;
+        ty = TY * D;
+
+        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
+            if (ty + D >= tank.y && (tank.x < tx + D && tank.x + D > tx))
+                return false;
+        }
+        if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
+            if (ty + D >= tank.y && (tank.x < (TX + 1) * D + D && tank.x + D > (TX + 1) * D))
                 return false;
         }
         break;
     }
     case DOWN: {
-        int tx = x / D * D;
-        int ty = (y + tank.speed) / D * D;
+        int tx = tank.x / D * D;
+        int ty = tank.y / D * D;
         int TX = tx / D;
-        int TY = ty / D;
-        if (map[TX][TY]) {
-            if (y + D >= ty && (x < tx + D && x + D > tx))
+        int TY = ty / D + 1;
+        ty = TY * D;
+
+        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
+            if (tank.y + D >= (TY * D) && (tank.x < (TX * D) + D && tank.x + D > (TX * D)))
                 return false;
         }
-        break;
-    }      
-    case LEFT: {
-        int tx = (x - tank.speed) / D * D;
-        int ty = y / D * D;
-        int TX = tx / D;
-        int TY = ty / D;
-        if (map[TX][TY]) {
-            if (x <= tx + D && (ty - D < y && ty > y - D))
+        if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
+            if (tank.y + D >= ty && (tank.x < (TX + 1) * D + D && tank.x + D > (TX + 1) * D))
                 return false;
         }
         break;
     }
-    case RIGHT: {
-        int tx = (x + tank.speed) / D * D;
-        int ty = y / D * D;
-        int TX = tx / D;
+
+    case LEFT: {
+        int tx = tank.x / D * D;
+        int ty = tank.y / D * D;
+        int TX = tx / D - 1;
         int TY = ty / D;
-        if (map[TX][TY - 1]) {
-            if (x + D >= tx && (ty - D < y && ty > y - D))
+        tx = TX * D;
+
+        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
+            if (tank.x <= tx + D && (ty - D < tank.y && ty > tank.y - D))
                 return false;
         }
+
+        if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
+            if (tank.x <= tx + D && ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
+                return false;
+        }
+
+        break;
+    }
+
+    case RIGHT: {
+        int tx = tank.x / D * D;
+        int ty = tank.y / D * D;
+        int TX = tx / D + 1;
+        int TY = ty / D;
+        std::cout << "TXTYT" << TX << " " << TY << '\n';
+        std::cout << "tx ty " << tx << " " << ty << '\n';
+        if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
+            if (tank.x + D >= tx && (ty - D < tank.y && ty > tank.y - D))
+                return false;
+        }
+        if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
+            if (tank.x + D >= tx && ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
+                return false;
+        }
+
         break;
     }
     default:
@@ -323,19 +349,19 @@ void play() {
     Tank_s my_tank_s;
     for (int i = 0; i < X_NUM; i++) {
         for (int j = 0; j < Y_NUM; j++) {
-            if (Map1[i][j] == 10) {
-                my_tank_s = {10, i * D, j*D, i, j, 100, 100, 5, UP, true};
+            if (Map1[i][j] == 100) {
+                my_tank_s = {100, i * D, j * D, i, j, 100, 100, 5, UP, true};
             }
         }
     }
-    
 
     Putimage(my_tank_s, my_tank);
 
     while (true) {
         while (peekmessage(&key, EX_KEY)) {
-
-            if (key.message == WM_KEYDOWN || key.message == WM_KEYUP) {
+            // Sleep(500);
+            std::cout << "(" << my_tank_s.x << "," << my_tank_s.y << ")" << '\n';
+            if (key.message == WM_KEYDOWN) {
                 switch (key.vkcode) {
                 case 'W': {
                     // 方向切换到向上
@@ -343,9 +369,9 @@ void play() {
                     Putimage(my_tank_s, my_tank);
 
                     // 判断是否能向上走一格
-                    if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
+                    if (moveable(Map1, my_tank_s)) {
                         // 消除原来的图像
-                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D - 1, my_tank_s.y + D - 1);
                         // 改变我方坦克坐标
                         my_tank_s.y -= my_tank_s.speed;
                         // 重新绘图
@@ -353,53 +379,53 @@ void play() {
                     }
                     break;
                 }
-                     case 'A': {
-                         // 方向切换到向左
-                         my_tank_s.direction = LEFT;
-                         Putimage(my_tank_s, my_tank);
-                         // 判断是否能向左走
-                         if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
-                             // 消除原来的图像
-                             solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
-                             // 改变我方坦克坐标
-                             my_tank_s.x -= my_tank_s.speed;
-                             // 重新绘图
-                             Putimage(my_tank_s, my_tank);
-                         }
-                         break;
-                     }
+                case 'A': {
+                    // 方向切换到向左
+                    my_tank_s.direction = LEFT;
+                    Putimage(my_tank_s, my_tank);
+                    // 判断是否能向左走
+                    if (moveable(Map1, my_tank_s)) {
+                        // 消除原来的图像
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D - 1, my_tank_s.y + D - 1);
+                        // 改变我方坦克坐标
+                        my_tank_s.x -= my_tank_s.speed;
+                        // 重新绘图
+                        Putimage(my_tank_s, my_tank);
+                    }
+                    break;
+                }
 
                     // break;
-                     case 'S': {
-                         // 方向切换到向下
-                         my_tank_s.direction = DOWN;
-                         Putimage(my_tank_s, my_tank);
-                         // 判断是否能向下走
-                         if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
-                             // 消除原来的图像
-                             solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
-                             // 改变我方坦克坐标
-                             my_tank_s.y += my_tank_s.speed;
-                             // 重新绘图
-                             Putimage(my_tank_s, my_tank);
-                         }
-                         break;
-                     }
-                     case 'D': {
-                         // 方向切换到向右
-                         my_tank_s.direction = RIGHT;
-                         Putimage(my_tank_s, my_tank);
-                         // 判断是否能向右走
-                         if (moveable(Map1, my_tank_s.x, my_tank_s.y, my_tank_s)) {
-                             // 消除原来的图像
-                             solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
-                             // 改变我方坦克坐标
-                             my_tank_s.x += my_tank_s.speed;
-                             // 重新绘图
-                             Putimage(my_tank_s, my_tank);
-                         }
-                         break;
-                     }
+                case 'S': {
+                    // 方向切换到向下
+                    my_tank_s.direction = DOWN;
+                    Putimage(my_tank_s, my_tank);
+                    // 判断是否能向下走
+                    if (moveable(Map1, my_tank_s)) {
+                        // 消除原来的图像
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                        // 改变我方坦克坐标
+                        my_tank_s.y += my_tank_s.speed;
+                        // 重新绘图
+                        Putimage(my_tank_s, my_tank);
+                    }
+                    break;
+                }
+                case 'D': {
+                    // 方向切换到向右
+                    my_tank_s.direction = RIGHT;
+                    Putimage(my_tank_s, my_tank);
+                    // 判断是否能向右走
+                    if (moveable(Map1, my_tank_s)) {
+                        // 消除原来的图像
+                        solidrectangle(my_tank_s.x, my_tank_s.y, my_tank_s.x + D, my_tank_s.y + D);
+                        // 改变我方坦克坐标
+                        my_tank_s.x += my_tank_s.speed;
+                        // 重新绘图
+                        Putimage(my_tank_s, my_tank);
+                    }
+                    break;
+                }
                     // }
                     // case 'P':
                     //     system("pause");
