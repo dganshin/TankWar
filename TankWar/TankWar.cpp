@@ -114,7 +114,13 @@ int Backup[X_NUM][Y_NUM] = {
     {1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1  }
 };
 
-// 显示帮助(操作方法)
+/*************************************************************************
+ * void show_help()
+ * 参数：无
+ * 功能：当鼠标选停在“帮助”键时，显示帮助信息，移走鼠标之后取消显示帮助信息
+ * 返回：无
+ ***********************************************************************/
+
 void show_help() {
     // 绘制可操作框
     // 框线的颜色: 白色
@@ -126,7 +132,13 @@ void show_help() {
     outtextxy(170 + 60, 360, _T("上:W 下:S 左:A 右:D 攻击:Space 暂停:P"));
 }
 
-// 初始化地图
+/*************************************************************************
+ * void init_map()
+ * 参数：无
+ * 功能：初始化地图，即绘制地图上的砖墙与铁墙
+ * 返回：无
+ ***********************************************************************/
+
 void init_map() {
 
     // 恢复地图
@@ -154,7 +166,13 @@ void init_map() {
     }
 }
 
-// 显示初始界面
+/*************************************************************************
+ * void init_menu()
+ * 参数：无
+ * 功能：初始化游戏主界面，显示必要信息，如“帮助”，“设置”，“开始游戏”
+ * 返回：无
+ ***********************************************************************/
+
 void init_menu() {
 
     // 绘制游戏窗口 宽800高600像素
@@ -164,7 +182,7 @@ void init_menu() {
     IMAGE logo;
 
     // 加载logo
-    loadimage(&logo, _T("logo.png"), 480, 54); // 特定数据请不要改动
+    loadimage(&logo, _T("logo.png"), 480, 54); // 特定数据请不要改动QAQ
 
     // 显示logo
     putimage(160, 200, &logo); // 特定数据
@@ -199,7 +217,7 @@ void init_menu() {
         switch (mouse.uMsg) {
         case WM_MOUSEMOVE: {
             // 悬浮"帮助"
-            if ((mouse.x >= HELP_X && mouse.x <= HELP_X + dx) && 
+            if ((mouse.x >= HELP_X && mouse.x <= HELP_X + dx) &&
                 (mouse.y >= HELP_Y && mouse.y <= HELP_Y + dy)) {
                 show_help(); // 鼠标悬浮到"帮助"上时, 显示帮助信息
             } else {
@@ -209,7 +227,7 @@ void init_menu() {
         }
         case WM_LBUTTONDOWN: {
             // 点击开始
-            if ((mouse.x >= START_X && mouse.x <= START_X + dx) && 
+            if ((mouse.x >= START_X && mouse.x <= START_X + dx) &&
                 (mouse.y >= START_Y && mouse.y <= START_Y + dy)) {
                 ready_play = true;
                 cleardevice(); // 清屏
@@ -217,8 +235,8 @@ void init_menu() {
                 break;
             }
             // 点击设置
-            else if ((mouse.x >= SETTING_X && mouse.x <= SETTING_X + dx) && 
-                (mouse.y >= SETTING_Y && mouse.y <= SETTING_Y + dy)) {
+            else if ((mouse.x >= SETTING_X && mouse.x <= SETTING_X + dx) &&
+                     (mouse.y >= SETTING_Y && mouse.y <= SETTING_Y + dy)) {
                 is_setting = true;
                 cleardevice();
                 setting();
@@ -231,7 +249,13 @@ void init_menu() {
     }
 }
 
-// 实现设置功能的函数
+/*************************************************************************
+ * void setting()
+ * 参数：无
+ * 功能：设置功能，调整敌人的移动速度和敌人的数量
+ * 返回：无
+ ***********************************************************************/
+
 void setting() {
 
     // 清屏
@@ -346,7 +370,13 @@ void setting() {
     }
 }
 
-// 封装绘图函数
+/*************************************************************************
+ * void Putimage(Tank_s tank_s, IMAGE image[])
+ * 参数：坦克结构体， 图像指针
+ * 功能：封装绘制坦克图像函数
+ * 返回：无
+ ***********************************************************************/
+
 void Putimage(Tank_s tank_s, IMAGE image[]) {
     putimage(tank_s.x, tank_s.y, &image[tank_s.direction]);
 }
@@ -356,6 +386,13 @@ ExMessage key;
 
 /**********************************************************************
  * 重难点 碰撞检测与边界判定
+ ***********************************************************************/
+
+/*************************************************************************
+ * bool moveable(int map[][Y_NUM], Tank_s tank)
+ * 参数：二维数组（地图），坦克结构体
+ * 功能：判断坦克是否能向当前朝向移动
+ * 返回：返回真表示可以向当前朝向移动
  ***********************************************************************/
 
 bool moveable(int map[][Y_NUM], Tank_s tank) {
@@ -374,13 +411,13 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         ty = TY * D;
 
         if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
-            if (ty + D >= tank.y && 
+            if (ty + D >= tank.y &&
                 (tank.x < tx + D && tank.x >= tx))
                 return false;
         }
         if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
             if (ty + D >= tank.y && (tank.x < (TX + 1) * D &&
-                tank.x + D > (TX + 1) * D))
+                                     tank.x + D > (TX + 1) * D))
                 return false;
         }
         break;
@@ -395,12 +432,12 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         ty = TY * D;
 
         if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
-            if (tank.y + D >= (TY * D) && 
+            if (tank.y + D >= (TY * D) &&
                 (tank.x < (TX * D) + D && tank.x + D > (TX * D)))
                 return false;
         }
         if (map[TX + 1][TY] <= 20 && map[TX + 1][TY] > 0) {
-            if (tank.y + D >= ty && 
+            if (tank.y + D >= ty &&
                 (tank.x < (TX + 1) * D + D && tank.x + D > (TX + 1) * D))
                 return false;
         }
@@ -417,13 +454,13 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         tx = TX * D;
 
         if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
-            if (tank.x <= tx + D && 
+            if (tank.x <= tx + D &&
                 (ty - D < tank.y && ty > tank.y - D))
                 return false;
         }
 
         if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
-            if (tank.x <= tx + D && 
+            if (tank.x <= tx + D &&
                 ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
                 return false;
         }
@@ -439,13 +476,13 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
         int TY = ty / D;
 
         if (map[TX][TY] <= 20 && map[TX][TY] > 0) {
-            if (tank.x + D >= tx && 
+            if (tank.x + D >= tx &&
                 (ty - D < tank.y && ty > tank.y - D))
                 return false;
         }
 
         if (map[TX][TY + 1] <= 20 && map[TX][TY + 1] > 0) {
-            if (tank.x + D >= tx && 
+            if (tank.x + D >= tx &&
                 ((TY + 1) * D - D < tank.y && (TY + 1) * D > tank.y - D))
                 return false;
         }
@@ -458,7 +495,13 @@ bool moveable(int map[][Y_NUM], Tank_s tank) {
     return true;
 }
 
-// 游戏结束
+/*************************************************************************
+ * void game_over()
+ * 参数：无
+ * 功能：显示游戏结束界面
+ * 返回：无
+ ***********************************************************************/
+
 void game_over() {
 
     cleardevice();
@@ -508,11 +551,9 @@ void game_over() {
                 is_gameover = false;
                 play(); // 重新开始
                 break;
-            } 
-            else if (mouse.x >= 420 - dx + 120 && mouse.x <= 520 - dx + 120 && mouse.y >= 360 + 60 && mouse.y <= 360 + 100) {
+            } else if (mouse.x >= 420 - dx + 120 && mouse.x <= 520 - dx + 120 && mouse.y >= 360 + 60 && mouse.y <= 360 + 100) {
                 exit(0); // 退出游戏
-            } 
-            else if (mouse.x >= 420 - dx && mouse.x <= 520 - dx && mouse.y >= 360 + 60 && mouse.y <= 360 + 100) {
+            } else if (mouse.x >= 420 - dx && mouse.x <= 520 - dx && mouse.y >= 360 + 60 && mouse.y <= 360 + 100) {
                 ready_play = false;
                 is_setting = false;
                 is_gameover = false;
@@ -527,7 +568,13 @@ void game_over() {
     }
 }
 
-// 运行游戏
+/*************************************************************************
+ * void play()
+ * 参数：无
+ * 功能：开始运行游戏
+ * 返回：无
+ ***********************************************************************/
+
 void play() {
 
     // 清除残留
@@ -630,7 +677,7 @@ void play() {
                         enemy_tank_1_s[i].direction = (enemy_tank_1_s[i].direction + rand()) % 4;
                     }
                     switch (enemy_tank_1_s[i].direction) {
-                        
+
                     case UP: {
                         // 判断是否能向上走一格
                         if (moveable(Map1, enemy_tank_1_s[i])) {
@@ -829,7 +876,7 @@ void play() {
         }
 
         // 炮弹飞行
-        if (my_bullet_s.status || enemy_bullet_s[0].status || 
+        if (my_bullet_s.status || enemy_bullet_s[0].status ||
             enemy_bullet_s[1].status || enemy_bullet_s[2].status) {
 
             // 绘制子弹
@@ -955,7 +1002,7 @@ void play() {
                     Map1[my_bullet_s.x / D][my_bullet_s.y / D] = 0;
 
                     int tx = my_bullet_s.x / D, ty = my_bullet_s.y / D;
-                     
+
                     for (int i = 0; i < remain; i++) {
                         if (enemy_tank_1_s[i].X == tx && enemy_tank_1_s[i].Y == ty && enemy_tank_1_s[i].is_alive == true) {
                             enemy_tank_1_s[i].is_alive = false; //
@@ -1000,6 +1047,13 @@ void play() {
         }
     }
 }
+
+/*************************************************************************
+ * int main()
+ * 参数：无
+ * 功能：主函数
+ * 返回：程序正常运行代号0
+ ***********************************************************************/
 
 int main() {
     // 显示初始界面
