@@ -78,40 +78,40 @@ struct Bullet_s {
 
 int Map1[X_NUM][Y_NUM] = {
     {1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1  },
+    {10, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1  },
+    {1,  1, 1, 1, 2, 1, 0, 1, 1, 1, 1, 1  },
+    {1,  0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1  },
+    {1,  1, 1, 1, 1, 1, 0, 1, 1, 2, 1, 1  },
     {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1  },
-    {1,  2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1  },
-    {1,  0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1  },
-    {1,  2, 2, 1, 2, 1, 0, 1, 2, 2, 2, 1  },
-    {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1  },
-    {1,  2, 2, 1, 2, 2, 0, 1, 2, 1, 1, 1  },
+    {1,  2, 1, 1, 1, 1, 0, 1, 2, 1, 1, 1  },
     {1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
-    {1,  2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1  },
+    {1,  2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1  },
     {1,  0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 1  },
     {1,  2, 1, 2, 0, 1, 1, 2, 1, 1, 2, 1  },
     {1,  0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1  },
     {1,  1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1  },
-    {10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1  },
-    {1,  2, 1, 2, 1, 0, 1, 1, 2, 1, 1, 1  },
+    {10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1  },
+    {1,  2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1  },
     {1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1  }
 };
 
 // backup
 int Backup[X_NUM][Y_NUM] = {
     {1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1  },
+    {10, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1  },
+    {1,  1, 1, 1, 2, 1, 0, 1, 1, 1, 1, 1  },
+    {1,  0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1  },
+    {1,  1, 1, 1, 1, 1, 0, 1, 1, 2, 1, 1  },
     {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1  },
-    {1,  2, 2, 1, 2, 1, 0, 1, 1, 2, 1, 1  },
-    {1,  0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1  },
-    {1,  2, 2, 1, 2, 1, 0, 1, 2, 2, 2, 1  },
-    {10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1  },
-    {1,  2, 2, 1, 2, 2, 0, 1, 2, 1, 1, 1  },
+    {1,  2, 1, 1, 1, 1, 0, 1, 2, 1, 1, 1  },
     {1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
-    {1,  2, 2, 1, 1, 2, 0, 1, 1, 1, 1, 1  },
+    {1,  2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1  },
     {1,  0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 1  },
     {1,  2, 1, 2, 0, 1, 1, 2, 1, 1, 2, 1  },
     {1,  0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1  },
     {1,  1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 1  },
-    {10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1  },
-    {1,  2, 1, 2, 1, 0, 1, 1, 2, 1, 1, 1  },
+    {10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1  },
+    {1,  2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1  },
     {1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1  }
 };
 
@@ -141,7 +141,7 @@ void show_help() {
 
 void init_map() {
 
-    // 恢复地图
+    // 恢复地图(载入地图数据)
     for (int i = 0; i < X_NUM; i++) {
         for (int j = 0; j < Y_NUM; j++) {
             Map1[i][j] = Backup[i][j];
@@ -592,7 +592,7 @@ void play() {
     init_map();
 
     // 声明我方坦克和敌方坦克的图像指针
-    IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4], my_bullet; // 子弹是公用的
+    IMAGE my_tank[4], enemy_tank_1[4], enemy_tank_2[4], my_bullet; // 炮弹是公用的
 
     // 加载我方坦克图像
     loadimage(&my_tank[UP], _T("tank_player_1_U.png"), D, D);
@@ -612,7 +612,7 @@ void play() {
     loadimage(&enemy_tank_2[LEFT], _T("tank_enemy_2_L.png"), D, D);
     loadimage(&enemy_tank_2[RIGHT], _T("tank_enemy_2_R.png"), D, D);
 
-    // 加载子弹图像
+    // 加载炮弹图像
     loadimage(&my_bullet, _T("bullet.png"), 10, 10);
 
     // 初始化我方坦克
@@ -647,7 +647,7 @@ void play() {
     // 显示我方坦克图像
     Putimage(my_tank_s, my_tank);
 
-    // 初始化子弹
+    // 初始化炮弹
     Bullet_s my_bullet_s = {800, 600, 25, UP, true};
 
     Bullet_s enemy_bullet_s[Enemy_Num];
@@ -883,12 +883,12 @@ void play() {
         if (my_bullet_s.status || enemy_bullet_s[0].status ||
             enemy_bullet_s[1].status || enemy_bullet_s[2].status) {
 
-            // 绘制子弹
+            // 绘制炮弹
             if (my_bullet_s.status)
                 putimage(my_bullet_s.x + 18, my_bullet_s.y + 18, &my_bullet); // 玩家
 
             for (int i = 0; i < remain; i++) {
-                // 敌方子弹初始方向
+                // 敌方炮弹初始方向
                 if (enemy_tank_1_s[i].is_alive) {
                     enemy_bullet_s[i].status = true;
                     enemy_bullet_s[i].direction = enemy_tank_1_s[i].direction;
@@ -928,7 +928,7 @@ void play() {
                         }
                         }
 
-                    } else { // 如果已经发射了, 就继承子弹的上一个状态
+                    } else { // 如果已经发射了, 就继承炮弹的上一个状态
                         enemy_bullet_s[i].lx = enemy_bullet_s[i].x;
                         enemy_bullet_s[i].ly = enemy_bullet_s[i].y;
                         switch (enemy_bullet_s[i].direction) {
@@ -953,18 +953,18 @@ void play() {
                             break;
                         }
                         if (enemy_bullet_s[i].status) {
-                            putimage(enemy_bullet_s[i].x + 18, enemy_bullet_s[i].y + 18, &my_bullet); // 绘制敌方子弹
+                            putimage(enemy_bullet_s[i].x + 18, enemy_bullet_s[i].y + 18, &my_bullet); // 绘制敌方炮弹
                         }
                     }
                 }
             }
 
-            Sleep(20); // 睡眠20ms防止子弹过快
+            Sleep(20); // 睡眠20ms防止炮弹过快
 
             my_bullet_s.lx = my_bullet_s.x;
             my_bullet_s.ly = my_bullet_s.y;
 
-            // 控制我方子弹的方向
+            // 控制我方炮弹的方向
             switch (my_bullet_s.direction) {
             case UP: {
                 my_bullet_s.y -= my_bullet_s.speed;
@@ -986,7 +986,7 @@ void play() {
                 break;
             }
 
-            // 我方子弹碰撞判定
+            // 我方炮弹碰撞判定
             if (my_bullet_s.x <= 800 && my_bullet_s.x >= 0 - D && my_bullet_s.y <= 600 && my_bullet_s.y >= 0 - D && my_bullet_s.status) {
                 solidrectangle(my_bullet_s.lx + 18, my_bullet_s.ly + 18, my_bullet_s.lx + 10 + 18, my_bullet_s.ly + 10 + 18);
 
@@ -996,7 +996,7 @@ void play() {
                     solidrectangle(my_bullet_s.x / D * D, my_bullet_s.y / D * D, my_bullet_s.x / D * D + D, my_bullet_s.y / D * D + D);
                     my_bullet_s.status = false;
 
-                } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 2) { // 无法消除, 子弹湮灭
+                } else if (Map1[my_bullet_s.x / D][my_bullet_s.y / D] == 2) { // 无法消除, 炮弹湮灭
 
                     my_bullet_s.status = false;
 
@@ -1010,17 +1010,17 @@ void play() {
                     for (int i = 0; i < remain; i++) {
                         if (enemy_tank_1_s[i].X == tx && enemy_tank_1_s[i].Y == ty && enemy_tank_1_s[i].is_alive == true) {
                             enemy_tank_1_s[i].is_alive = false; //
-                            enemy_bullet_s[i].status = false;   // 取消子弹状态
+                            enemy_bullet_s[i].status = false;   // 取消炮弹状态
                             break;
                         }
                     }
                 }
             }
 
-            // 敌方子弹的碰撞判定
+            // 敌方炮弹的碰撞判定
             for (int i = 0; i < remain; i++) {
                 if (enemy_bullet_s[i].x <= 800 + D && enemy_bullet_s[i].x >= 0 - D && enemy_bullet_s[i].y <= 600 + D && enemy_bullet_s[i].y >= 0 - D && enemy_bullet_s[i].status) {
-                    solidrectangle(enemy_bullet_s[i].lx + 18, enemy_bullet_s[i].ly + 18, enemy_bullet_s[i].lx + 10 + 18, enemy_bullet_s[i].ly + 10 + 18); // 消掉上一个子弹的图像
+                    solidrectangle(enemy_bullet_s[i].lx + 18, enemy_bullet_s[i].ly + 18, enemy_bullet_s[i].lx + 10 + 18, enemy_bullet_s[i].ly + 10 + 18); // 消掉上一个炮弹的图像
 
                     if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 1) { // 消除砖墙
 
@@ -1029,7 +1029,7 @@ void play() {
                         enemy_bullet_s[i].status = false;
                         shot[i] = 1;
 
-                    } else if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 2) { // 无法消除, 子弹湮灭
+                    } else if (Map1[enemy_bullet_s[i].x / D][enemy_bullet_s[i].y / D] == 2) { // 无法消除, 炮弹湮灭
 
                         enemy_bullet_s[i].status = false;
                         shot[i] = 1;
